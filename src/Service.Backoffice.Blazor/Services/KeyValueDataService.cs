@@ -23,20 +23,6 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new KeyValueDataViewModel("Please enter user email");
 
-			return new KeyValueDataViewModel
-			{
-				Items = new ParamValue[]
-				{
-					new ParamValue("p1", "value1"),
-					new ParamValue("p2", "value2"),
-					new ParamValue("p3", "value3"),
-					new ParamValue("p4", "value4"),
-					new ParamValue("p5", "value3"),
-					new ParamValue("p6", "value4"),
-					new ParamValue("p7", "value5"),
-				}
-			};
-
 			UserInfoResponse userInfoResponse = await _userInfoService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 			UserInfoGrpcModel userInfo = userInfoResponse?.UserInfo;
 			if (userInfo == null)

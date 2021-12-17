@@ -24,23 +24,6 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new UserDataViewModel("Please enter user email");
 
-			return GetUserData(new UserInfoGrpcModel()
-			{
-				IpAddress = "192.168.1.1",
-				RefreshToken = "238947892374893",
-				RefreshTokenExpires = DateTime.Now,
-				Role = UserRole.Default,
-				UserId = new Guid("0e612663-cac5-4dd5-b81d-3d6a0ff1a83d"),
-				UserName = "userName"
-			}, new AccountDataGrpcModel
-			{
-				LastName = "Ivanov",
-				FirstName = "Ivan",
-				Phone = "3897489374",
-				Country = "Russia",
-				Gender = "male"
-			});
-
 			UserInfoResponse userInfoResponse = await _userInfoService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 			UserInfoGrpcModel userInfo = userInfoResponse?.UserInfo;
 			if (userInfo == null)
