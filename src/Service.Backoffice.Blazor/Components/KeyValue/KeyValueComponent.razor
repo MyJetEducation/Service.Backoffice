@@ -1,0 +1,58 @@
+@using Microsoft.AspNetCore.Components
+@using Service.Backoffice.Blazor.Models
+@using Service.Backoffice.Blazor.Services
+@using Service.Core.Domain.Extensions
+
+@inject IKeyValueDataService _keyValueDataService
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<ul class="nav">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon3">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter">
+        <div class="input-group-append" id="button-addon4">
+            <button class="btn btn-outline-secondary" type="button" @onclick="Filter">Search</button>
+        </div>
+    </div>
+</ul>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover" style="width: 100%">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (ParamValue paramValue in _data.Items)
+                {
+                    <tr>
+                        <td>@paramValue.Param</td>
+                        <td>@paramValue.Value</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    private string EmailFilter { get; set; }
+
+    KeyValueDataViewModel _data;
+
+    private async Task Filter() => _data = await _keyValueDataService.GetKeyValueData(EmailFilter);
+}

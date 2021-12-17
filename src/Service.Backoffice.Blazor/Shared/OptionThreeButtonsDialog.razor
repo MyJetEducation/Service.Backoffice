@@ -1,0 +1,49 @@
+<div id="optionModal" class="custom-modal">
+    <div style="width:@(Width)px" class="custom-modal-content">
+        <div>
+            <span @onclick="OnClose" class="close-btn">&times;</span>
+            <h3>@Caption</h3>
+        </div>
+        <div class="align-middle" style="min-height: 50px">
+            @ChildContent
+        </div>
+        <div style="text-align: center; margin-top: 5px;">
+            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                <button @onclick="OnOption" type="button" class="btn btn-outline-info" style="margin: 10px; border-radius: 10px">@(OptionButtonCaption ?? "Option")</button>
+                <button @onclick="OnSubmit" type="button" class="btn btn-outline-success" style="margin: 10px; border-radius: 10px">@(YesButtonCaption ?? "Submit")</button>
+                <button @onclick="OnClose" type="button" class="btn btn-outline-danger" style="margin: 10px; border-radius: 10px">@(NoButtonCaption ?? "Cancel")</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    [Parameter]
+    public EventCallback OnSubmit { get; set; }
+    
+    [Parameter]
+    public EventCallback OnOption { get; set; }
+
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public int Width { get; set; } = 600;
+
+    [Parameter]
+    public string YesButtonCaption { get; set; }
+
+    [Parameter]
+    public string NoButtonCaption { get; set; }
+    
+    [Parameter]
+    public string OptionButtonCaption { get; set; }
+
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+}

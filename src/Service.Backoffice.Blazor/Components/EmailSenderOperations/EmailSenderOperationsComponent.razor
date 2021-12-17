@@ -1,0 +1,54 @@
+@using Service.Backoffice.Blazor.Models
+@using Service.Backoffice.Blazor.Services
+@using Service.Core.Domain.Extensions
+
+@inject IEmailSenderOperationService _emailSenderOperationService
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<div class="nav">
+    <button class="btn btn-primary" @onclick="Filter">Refresh</button>
+</div>
+<br/>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+    <div class="card">
+        <div class="card-body">
+            <table class="table table-hover" style="width: 100%">
+                <thead class="thead-dark">
+                <tr>
+                    <th>Date</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (ParamValue paramValue in _data.Items)
+                {
+                    <tr>
+                        <td>
+                            <pre>@paramValue.Param</pre>
+                        </td>
+                        <td>
+                            <pre>@paramValue.Value</pre>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@code {
+    EmailSenderOperationDataViewModel _data;
+
+    protected override Task OnInitializedAsync() => Filter();
+
+    private async Task Filter() => _data = await _emailSenderOperationService.GetOperationData();
+}
