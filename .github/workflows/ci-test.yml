@@ -32,7 +32,7 @@ jobs:
       run: ls
 
     - name: Publish Service
-      run: dotnet publish --no-build ./src/Service.Backoffice/Service.Backoffice.csproj --configuration Release --output ./publish-api
+      run: dotnet publish --no-build ./src/Service.Backoffice.Blazor/Service.Backoffice.Blazor.csproj --configuration Release --output ./publish-api
 
     - name: Check Service dir
       run: ls ./publish-api
