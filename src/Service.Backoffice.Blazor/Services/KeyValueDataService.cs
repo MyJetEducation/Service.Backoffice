@@ -1,5 +1,5 @@
 ﻿using Service.Backoffice.Blazor.Models;
-using Service.Core.Domain.Extensions;
+using Service.Core.Client.Extensions;
 using Service.KeyValue.Grpc;
 using Service.KeyValue.Grpc.Models;
 using Service.UserInfo.Crud.Grpc;

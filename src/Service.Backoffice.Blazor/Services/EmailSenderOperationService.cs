@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Service.Backoffice.Blazor.Models;
 using Service.Backoffice.Postgres;
-using Service.Core.Domain.Extensions;
+using Service.Core.Client.Extensions;
 
 namespace Service.Backoffice.Blazor.Services
 {
