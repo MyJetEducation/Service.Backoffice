@@ -10,6 +10,7 @@ namespace Service.Backoffice.Blazor.Modules
 			builder.RegisterType<UserDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<KeyValueDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<EmailSenderOperationService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<EducationProgressService>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }

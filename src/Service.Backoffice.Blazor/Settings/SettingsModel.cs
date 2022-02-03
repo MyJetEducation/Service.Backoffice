@@ -23,7 +23,16 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.UserInfoCrudServiceUrl")]
         public string UserInfoCrudServiceUrl { get; set; }
 
+        [YamlProperty("Backoffice.EducationProgressServiceUrl")]
+        public string EducationProgressServiceUrl { get; set; }
+
+        [YamlProperty("Backoffice.ServerKeyValueServiceUrl")]
+        public string ServerKeyValueServiceUrl { get; set; }
+
         [YamlProperty("Backoffice.PostgresConnectionString")]
         public string PostgresConnectionString { get; set; }
+
+        [YamlProperty("Backoffice.KeyEducationProgress")]
+        public string KeyEducationProgress { get; set; }
     }
 }

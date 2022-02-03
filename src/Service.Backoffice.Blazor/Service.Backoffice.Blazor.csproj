@@ -8,7 +8,9 @@
 
     <ItemGroup>
       <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.22" />
+      <PackageReference Include="MyJetEducation.Service.EducationProgress.Client" Version="1.0.12" />
       <PackageReference Include="MyJetEducation.Service.KeyValue.Client" Version="1.0.5" />
+      <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.2" />
       <PackageReference Include="MyJetEducation.Service.UserInfo.Crud.Client" Version="1.0.12" />
       <PackageReference Include="MyJetEducation.Service.UserProfile.Client" Version="1.0.4" />
       <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.6" />

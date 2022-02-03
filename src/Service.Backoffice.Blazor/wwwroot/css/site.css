@@ -403,3 +403,27 @@ a, .btn-link {
     -ms-text-shadow: black 1px 1px 1px;
     text-shadow: black 1px 1px 1px;
 }
+
+table {
+    text-align: center;
+    min-width: 50%;
+}
+
+.table {
+    width: auto;
+}
+
+.del-btn {
+    font-size: 7pt;
+    background: none;
+    color: red;
+    cursor: pointer;
+    vertical-align: text-top;
+    margin: 0px;
+    padding: 2px;
+}
+
+.del-btn:hover {
+    background: orange;
+    color: white;
+}

@@ -1,0 +1,39 @@
+@page "/educationprogress"
+
+@using Service.Backoffice.Blazor.Components.EducationProgress;
+
+<ul class="nav nav-tabs nav-pills">
+    <li class="nav-item" style="margin: 10px">
+        <button class="nav-link @CheckActive(Menus.ReadCollection)" aria-current="page" @onclick="SetReadCollection">Education progress</button>
+    </li>
+</ul>
+
+<div style="margin: 10px">
+
+    @if (ActivePage == Menus.ReadCollection)
+    {
+        <EducationProgressComponent/>
+    }
+</div>
+
+
+@code {
+
+    private Menus ActivePage { get; set; } = Menus.ReadCollection;
+
+    private string CheckActive(Menus target) => ActivePage == target ? "active" : string.Empty;
+
+    private void SetReadCollection() => SetActive(Menus.ReadCollection);
+
+    private void SetActive(Menus page)
+    {
+        ActivePage = page;
+        StateHasChanged();
+    }
+
+    public enum Menus
+    {
+        ReadCollection
+    }
+
+}

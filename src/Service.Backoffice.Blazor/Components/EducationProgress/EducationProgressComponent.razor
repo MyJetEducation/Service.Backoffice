@@ -1,0 +1,108 @@
+@using Service.Backoffice.Blazor.Models
+@using Service.Backoffice.Blazor.Services
+@using Service.Core.Client.Constants
+@using Service.Core.Client.Education
+@using Service.Core.Client.Extensions
+@using Service.EducationProgress.Domain.Models
+
+@inject IEducationProgressService _educationProgressService
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<ul class="nav">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon3">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter">
+        <div class="input-group-append" id="button-addon4">
+            <button class="btn btn-outline-secondary" type="button" @onclick="Filter">Search</button>
+        </div>
+    </div>
+</ul>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+    <div class="nav">
+        <button class="btn btn-primary" @onclick="@(_ => Filter())">Refresh</button>&nbsp;
+        <button class="btn btn-primary" @onclick="@(_ => Clear(null, null, null))">Clear all tutorials</button>
+    </div>
+    <br/>
+
+    <div class="card">
+        <div class="card-body">
+
+            @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
+            @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
+
+            @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
+            {
+                <table class="table table-bordered table-sm">
+                    <thead class="thead-dark">
+
+                    <tr>
+                        <th>
+                            @Enum.GetName(tutorialGroups.Key)
+                            <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                        </th>
+
+                        @for (var i = 1; i <= tasksCount; i++)
+                        {
+                            <th>Task @i</th>
+                        }
+                    </tr>
+
+                    </thead>
+                    <tbody>
+
+                    @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
+
+                    @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
+                    {
+                        <tr>
+                            <td class="table-primary">
+                                Unit @unitGroup.Key
+                                <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                            </td>
+
+                            @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
+
+                            @foreach (EducationProgressDto task in taskInfo)
+                            {
+                                string tdclass = task.Value switch {null => "",< AnswerProgress.OkAnswerProgress => "table-danger",_ => "table-success"};
+
+                                <td class="@tdclass">
+                                    @task.Value
+
+                                    @if (task.HasProgress)
+                                    {
+                                        <span @onclick="@(_ => Clear(task.Tutorial, task.Unit, task.Task))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                    }
+                                </td>
+                            }
+
+                        </tr>
+                    }
+
+                    </tbody>
+                </table>
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+    private string EmailFilter { get; set; }
+
+    EducationProgressDataViewModel _data;
+
+    private async Task Filter() => _data = await _educationProgressService.GetProgress(EmailFilter);
+
+    private async Task Clear(EducationTutorial? tutorial, int? unit, int? task) => _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
+}
