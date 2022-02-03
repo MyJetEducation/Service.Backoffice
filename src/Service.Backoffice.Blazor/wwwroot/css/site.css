@@ -404,12 +404,9 @@ a, .btn-link {
     text-shadow: black 1px 1px 1px;
 }
 
-table {
+.progress-table {
     text-align: center;
     min-width: 50%;
-}
-
-.table {
     width: auto;
 }
 
