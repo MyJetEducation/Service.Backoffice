@@ -17,6 +17,7 @@
       <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.6" />
       <PackageReference Include="MySettingsReader" Version="1.2.2" />
       <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
+      <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
     </ItemGroup>
 
     <ItemGroup>
