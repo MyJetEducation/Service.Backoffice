@@ -1,8 +1,8 @@
 ﻿using System.Text.Json;
 using Service.Backoffice.Blazor.Models;
-using Service.Core.Client.Education;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
+using Service.Education.Structure;
 using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc.Models;
 using Service.ServerKeyValue.Grpc;

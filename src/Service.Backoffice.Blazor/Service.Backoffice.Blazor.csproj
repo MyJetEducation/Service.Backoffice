@@ -18,7 +18,8 @@
       <PackageReference Include="MySettingsReader" Version="1.2.2" />
       <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
       <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
-    </ItemGroup>
+      <PackageReference Include="MyJetEducation.Service.Education" Version="1.0.0" />
+  </ItemGroup>
 
     <ItemGroup>
       <None Update="Dockerfile">

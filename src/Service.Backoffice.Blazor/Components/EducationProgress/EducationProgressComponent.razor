@@ -1,8 +1,9 @@
 @using Service.Backoffice.Blazor.Models
 @using Service.Backoffice.Blazor.Services
 @using Service.Core.Client.Constants
-@using Service.Core.Client.Education
 @using Service.Core.Client.Extensions
+@using Service.Education.Constants
+@using Service.Education.Structure
 @using Service.EducationProgress.Domain.Models
 
 @inject IEducationProgressService _educationProgressService
@@ -74,7 +75,7 @@
 
                             @foreach (EducationProgressDto task in taskInfo)
                             {
-                                string tdclass = task.Value switch {null => "",< AnswerProgress.OkAnswerProgress => "table-danger",_ => "table-success"};
+                                string tdclass = task.Value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
 
                                 <td class="@tdclass">
                                     @task.Value

@@ -1,5 +1,5 @@
 ﻿using Service.Backoffice.Blazor.Models;
-using Service.Core.Client.Education;
+using Service.Education.Structure;
 
 namespace Service.Backoffice.Blazor.Services
 {
