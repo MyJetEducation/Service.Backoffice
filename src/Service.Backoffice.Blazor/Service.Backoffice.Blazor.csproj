@@ -14,7 +14,7 @@
       <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.8" />
       <PackageReference Include="MyJetEducation.Service.UserInfo.Crud.Client" Version="1.0.14" />
       <PackageReference Include="MyJetEducation.Service.UserProfile.Client" Version="1.0.6" />
-      <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.6" />
+      <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.7" />
       <PackageReference Include="MySettingsReader" Version="1.2.2" />
       <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
       <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
