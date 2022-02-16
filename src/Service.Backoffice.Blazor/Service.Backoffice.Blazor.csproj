@@ -9,7 +9,7 @@
     <ItemGroup>
       <PackageReference Include="Autofac" Version="6.3.0" />
       <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.29" />
-      <PackageReference Include="MyJetEducation.Service.EducationProgress.Client" Version="1.0.17" />
+      <PackageReference Include="MyJetEducation.Service.EducationProgress.Client" Version="1.0.20" />
       <PackageReference Include="MyJetEducation.Service.KeyValue.Client" Version="1.0.7" />
       <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.8" />
       <PackageReference Include="MyJetEducation.Service.UserInfo.Crud.Client" Version="1.0.14" />
