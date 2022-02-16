@@ -406,8 +406,7 @@ a, .btn-link {
 
 .progress-table {
     text-align: center;
-    min-width: 50%;
-    width: auto;
+    max-width: 460pt;
 }
 
 .del-btn {
@@ -423,4 +422,12 @@ a, .btn-link {
 .del-btn:hover {
     background: orange;
     color: white;
+}
+
+.card-body {
+    overflow: auto;
+}
+
+.progress-th {
+    width: 140pt;
 }
