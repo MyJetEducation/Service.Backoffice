@@ -11,7 +11,7 @@
       <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.29" />
       <PackageReference Include="MyJetEducation.Service.EducationProgress.Client" Version="1.0.20" />
       <PackageReference Include="MyJetEducation.Service.KeyValue.Client" Version="1.0.7" />
-      <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.8" />
+      <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.9" />
       <PackageReference Include="MyJetEducation.Service.UserInfo.Crud.Client" Version="1.0.14" />
       <PackageReference Include="MyJetEducation.Service.UserProfile.Client" Version="1.0.6" />
       <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.7" />
@@ -19,6 +19,7 @@
       <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
       <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
       <PackageReference Include="MyJetEducation.Service.Education" Version="1.0.1" />
+      <PackageReference Include="MyJetEducation.Service.Grpc" Version="1.0.3" />
   </ItemGroup>
 
     <ItemGroup>

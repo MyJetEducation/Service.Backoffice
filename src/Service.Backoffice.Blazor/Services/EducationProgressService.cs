@@ -5,6 +5,7 @@ using Service.Core.Client.Models;
 using Service.Education.Structure;
 using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc.Models;
+using Service.Grpc;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 using Service.UserInfo.Crud.Grpc;
@@ -16,11 +17,11 @@ namespace Service.Backoffice.Blazor.Services
 	{
 		private readonly EducationProgress.Grpc.IEducationProgressService _educationProgressService;
 		private readonly IUserInfoService _userInfoService;
-		private readonly IServerKeyValueService _serverKeyValueService;
+		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
 		public EducationProgressService(EducationProgress.Grpc.IEducationProgressService educationProgressService,
 			IUserInfoService userInfoService,
-			IServerKeyValueService serverKeyValueService)
+			IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
 		{
 			_educationProgressService = educationProgressService;
 			_userInfoService = userInfoService;
@@ -73,7 +74,7 @@ namespace Service.Backoffice.Blazor.Services
 
 		public async ValueTask<EducationProgressDataViewModel> GetProgressByUser(Guid? userId)
 		{
-			ValueGrpcResponse response = await _serverKeyValueService.GetSingle(new ItemsGetSingleGrpcRequest
+			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
 				Key = Program.Settings.KeyEducationProgress,
 				UserId = userId

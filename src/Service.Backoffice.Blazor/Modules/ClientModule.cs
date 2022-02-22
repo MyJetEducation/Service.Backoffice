@@ -11,11 +11,12 @@ namespace Service.Backoffice.Blazor.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
+			builder.RegisterServerKeyValueClient(Program.Settings.ServerKeyValueServiceUrl, Program.LogFactory.CreateLogger(typeof(ServerKeyValueClientFactory)));
+
 			builder.RegisterUserInfoCrudClient(Program.Settings.UserInfoCrudServiceUrl);
 			builder.RegisterKeyValueClient(Program.Settings.KeyValueServiceUrl);
 			builder.RegisterUserProfileClient(Program.Settings.UserProfileServiceUrl);
 			builder.RegisterEducationProgressClient(Program.Settings.EducationProgressServiceUrl);
-			builder.RegisterServerKeyValueClient(Program.Settings.ServerKeyValueServiceUrl);
 		}
 	}
 }
