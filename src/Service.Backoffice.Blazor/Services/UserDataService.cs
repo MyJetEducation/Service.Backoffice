@@ -1,5 +1,6 @@
 ﻿using Service.Backoffice.Blazor.Models;
 using Service.Core.Client.Extensions;
+using Service.Grpc;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserProfile.Grpc;
@@ -9,10 +10,10 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public class UserDataService : IUserDataService
 	{
-		private readonly IUserInfoService _userInfoService;
+		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IUserProfileService _userProfileService;
 
-		public UserDataService(IUserInfoService userInfoService, IUserProfileService userProfileService)
+		public UserDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IUserProfileService userProfileService)
 		{
 			_userInfoService = userInfoService;
 			_userProfileService = userProfileService;
@@ -23,7 +24,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new UserDataViewModel("Please enter user email");
 
-			UserInfoResponse userInfoResponse = await _userInfoService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 			UserInfoGrpcModel userInfo = userInfoResponse?.UserInfo;
 			if (userInfo == null)
 				return new UserDataViewModel($"No user found by email {email}");

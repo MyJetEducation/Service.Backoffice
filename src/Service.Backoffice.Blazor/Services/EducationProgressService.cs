@@ -16,11 +16,11 @@ namespace Service.Backoffice.Blazor.Services
 	public class EducationProgressService : IEducationProgressService
 	{
 		private readonly EducationProgress.Grpc.IEducationProgressService _educationProgressService;
-		private readonly IUserInfoService _userInfoService;
+		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
 		public EducationProgressService(EducationProgress.Grpc.IEducationProgressService educationProgressService,
-			IUserInfoService userInfoService,
+			IGrpcServiceProxy<IUserInfoService> userInfoService,
 			IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
 		{
 			_educationProgressService = educationProgressService;
@@ -42,7 +42,7 @@ namespace Service.Backoffice.Blazor.Services
 
 		private async ValueTask<UserInfoGrpcModel> GetUserId(string email)
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 
 			return userInfoResponse?.UserInfo;
 		}
