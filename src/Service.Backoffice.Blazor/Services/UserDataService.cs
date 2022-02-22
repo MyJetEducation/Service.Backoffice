@@ -1,19 +1,19 @@
 ﻿using Service.Backoffice.Blazor.Models;
 using Service.Core.Client.Extensions;
 using Service.Grpc;
+using Service.UserAccount.Grpc;
+using Service.UserAccount.Grpc.Models;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
-using Service.UserProfile.Grpc;
-using Service.UserProfile.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
 	public class UserDataService : IUserDataService
 	{
 		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
-		private readonly IUserProfileService _userProfileService;
+		private readonly IGrpcServiceProxy<IUserAccountService> _userProfileService;
 
-		public UserDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IUserProfileService userProfileService)
+		public UserDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IUserAccountService> userProfileService)
 		{
 			_userInfoService = userInfoService;
 			_userProfileService = userProfileService;
@@ -30,7 +30,7 @@ namespace Service.Backoffice.Blazor.Services
 				return new UserDataViewModel($"No user found by email {email}");
 
 			Guid? userId = userInfo.UserId;
-			AccountGrpcResponse accountResponse = await _userProfileService.GetAccount(new GetAccountGrpcRequest {UserId = userId});
+			AccountGrpcResponse accountResponse = await _userProfileService.Service.GetAccount(new GetAccountGrpcRequest {UserId = userId});
 			AccountDataGrpcModel accountInfo = accountResponse?.Data;
 			if (accountInfo == null)
 				return new UserDataViewModel($"No user found by email {email}");

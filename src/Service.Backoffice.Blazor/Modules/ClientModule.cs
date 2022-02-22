@@ -2,8 +2,8 @@ using Autofac;
 using Service.EducationProgress.Client;
 using Service.KeyValue.Client;
 using Service.ServerKeyValue.Client;
+using Service.UserAccount.Client;
 using Service.UserInfo.Crud.Client;
-using Service.UserProfile.Client;
 
 namespace Service.Backoffice.Blazor.Modules
 {
@@ -15,7 +15,7 @@ namespace Service.Backoffice.Blazor.Modules
 			builder.RegisterUserInfoCrudClient(Program.Settings.UserInfoCrudServiceUrl, Program.LogFactory.CreateLogger(typeof(UserInfoCrudClientFactory)));
 
 			builder.RegisterKeyValueClient(Program.Settings.KeyValueServiceUrl);
-			builder.RegisterUserProfileClient(Program.Settings.UserProfileServiceUrl);
+			builder.RegisterUserAccountClient(Program.Settings.UserAccountServiceUrl, Program.LogFactory.CreateLogger(typeof(UserAccountClientFactory)));
 			builder.RegisterEducationProgressClient(Program.Settings.EducationProgressServiceUrl);
 		}
 	}

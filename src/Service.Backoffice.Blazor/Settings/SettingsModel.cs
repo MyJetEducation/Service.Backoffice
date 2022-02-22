@@ -14,8 +14,8 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
 
-        [YamlProperty("Backoffice.UserProfileServiceUrl")]
-        public string UserProfileServiceUrl { get; set; }
+        [YamlProperty("Backoffice.UserAccountServiceUrl")]
+        public string UserAccountServiceUrl { get; set; }
 
         [YamlProperty("Backoffice.KeyValueServiceUrl")]
         public string KeyValueServiceUrl { get; set; }
