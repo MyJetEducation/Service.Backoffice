@@ -45,9 +45,6 @@ namespace Service.Backoffice.Blazor.Services
 				new ParamValue(nameof(userInfo.UserId), userInfo.UserId.ToString()),
 				new ParamValue(nameof(userInfo.UserName), userInfo.UserName),
 				new ParamValue(nameof(userInfo.Role), userInfo.Role),
-				new ParamValue(nameof(userInfo.IpAddress), userInfo.IpAddress),
-				new ParamValue(nameof(userInfo.RefreshToken), userInfo.RefreshToken),
-				new ParamValue(nameof(userInfo.RefreshTokenExpires), userInfo.RefreshTokenExpires.ToString())
 			},
 			ProfileItems = new[]
 			{
