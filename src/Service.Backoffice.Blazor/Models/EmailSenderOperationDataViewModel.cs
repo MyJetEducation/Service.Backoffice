@@ -10,6 +10,6 @@
 		{
 		}
 
-		public ParamValue[] Items { get; set; }
+		public EmailSenderOperationParamValue[] Items { get; set; }
 	}
 }

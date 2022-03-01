@@ -28,7 +28,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                @foreach (ParamValue paramValue in _data.Items)
+                @foreach (EmailSenderOperationParamValue paramValue in _data.Items)
                 {
                     <tr>
                         <td>
@@ -36,6 +36,15 @@
                         </td>
                         <td>
                             <pre>@paramValue.Value</pre>
+                            @{
+                                string url = paramValue.Url;
+                                if (url != null)
+                                {
+                                    <p>
+                                        <a href="@url" target="_blank">@url</a>
+                                    </p>
+                                }
+                            }
                         </td>
                     </tr>
                 }
