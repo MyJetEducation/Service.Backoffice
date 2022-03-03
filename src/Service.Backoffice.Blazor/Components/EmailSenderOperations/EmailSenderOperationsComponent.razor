@@ -12,7 +12,13 @@
 }
 
 <div class="nav">
-    <button class="btn btn-primary" @onclick="Filter">Refresh</button>
+    <button class="btn btn-primary" type="button" style="float: right; display: @(IsRefreshing ? "none" : "block");" @onclick="Filter">
+        Refresh
+    </button>
+    <button class="btn btn-primary" style="float: right; display: @(IsRefreshing ? "block" : "none");" type="button" disabled>
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Refresh
+    </button>
 </div>
 <br/>
 
@@ -55,9 +61,15 @@
 }
 
 @code {
-    EmailSenderOperationDataViewModel _data;
+    private EmailSenderOperationDataViewModel _data;
+    private bool IsRefreshing { get; set; } = false;
 
     protected override Task OnInitializedAsync() => Filter();
 
-    private async Task Filter() => _data = await _emailSenderOperationService.GetOperationData();
+    private async Task Filter()
+    {
+        IsRefreshing = true;
+        _data = await _emailSenderOperationService.GetOperationData();
+        IsRefreshing = false;
+    }
 }

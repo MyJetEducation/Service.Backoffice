@@ -29,9 +29,69 @@
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    Reset data
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="progress" @bind="ClearProgress">
+                        <label class="form-check-label" for="inlineCheckbox1">Progress</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="progress" @bind="ClearUiProgress">
+                        <label class="form-check-label" for="inlineCheckbox2">UI progress</label>
+                    </div>
+                    <br />
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="achievements" @bind="ClearAchievements">
+                        <label class="form-check-label" for="inlineCheckbox3">Achievements</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox4" value="stats" @bind="ClearStatuses">
+                        <label class="form-check-label" for="inlineCheckbox4">Statuses</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox5" value="habits" @bind="ClearHabits">
+                        <label class="form-check-label" for="inlineCheckbox5">Habits</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox6" value="skills" @bind="ClearSkills">
+                        <label class="form-check-label" for="inlineCheckbox6">Skills</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox7" value="knowledge" @bind="ClearKnowledge">
+                        <label class="form-check-label" for="inlineCheckbox7">Knowledge</label>
+                    </div>
+                    <br />
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox8" value="knowledge" @bind="ClearUserTime">
+                        <label class="form-check-label" for="inlineCheckbox8">User time</label>
+                    </div>
+                    <button class="btn btn-primary" type="button" style="float:right; display:@(IsResettings ? "none" : "block");" @onclick="@(_ => ClearSome())">
+                        Reset
+                    </button>
+                    <button class="btn btn-primary" style="float:right; display:@(IsResettings ? "block" : "none");" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br />
+
     <div class="nav">
-        <button class="btn btn-primary" @onclick="@(_ => Filter())">Refresh</button>&nbsp;
-        <button class="btn btn-primary" @onclick="@(_ => Clear(null, null, null))">Clear all tutorials</button>
+        <button class="btn btn-primary" type="button" style="display: @(IsRefreshing ? "none" : "block");" @onclick="@(_ => Filter())">
+            Refresh
+        </button>
+        <button class="btn btn-primary" style="display: @(IsRefreshing ? "block" : "none");" type="button" disabled>
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Refresh
+        </button>        
     </div>
     <br/>
 
@@ -99,11 +159,33 @@
 }
 
 @code {
+    private EducationProgressDataViewModel _data;
     private string EmailFilter { get; set; }
+    private bool IsResettings { get; set; } = false;
+    private bool IsRefreshing { get; set; } = false;
+    private bool ClearProgress { get; set; } = true;
+    private bool ClearUiProgress { get; set; } = true;
+    private bool ClearAchievements { get; set; }
+    private bool ClearStatuses { get; set; }
+    private bool ClearHabits { get; set; }
+    private bool ClearSkills { get; set; }
+    private bool ClearKnowledge { get; set; }
+    private bool ClearUserTime { get; set; }
 
-    EducationProgressDataViewModel _data;
-
-    private async Task Filter() => _data = await _educationProgressService.GetProgress(EmailFilter);
+    private async Task Filter()
+    {
+        IsRefreshing = true;
+        _data = await _educationProgressService.GetProgress(EmailFilter);
+        IsRefreshing = false;
+    }
 
     private async Task Clear(EducationTutorial? tutorial, int? unit, int? task) => _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
+
+    private async Task ClearSome()
+    {
+        IsResettings = true;
+        await _educationProgressService.ClearAll(EmailFilter, ClearProgress, ClearUiProgress, ClearAchievements, ClearStatuses, ClearHabits, ClearSkills, ClearKnowledge, ClearUserTime);
+        IsResettings = false;
+        await Filter();
+    }
 }

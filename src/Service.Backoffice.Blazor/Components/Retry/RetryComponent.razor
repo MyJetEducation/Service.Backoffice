@@ -1,0 +1,121 @@
+@using Microsoft.AspNetCore.Components
+@using Service.Backoffice.Blazor.Models
+@using Service.Backoffice.Blazor.Services
+@using Service.Core.Client.Extensions
+
+@inject IRetryService _retryService
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<ul class="nav">
+    <div class="input-group mb-3">
+        <div class="input-group-prepend">
+            <span class="input-group-text" id="basic-addon3">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter">
+        <div class="input-group-append" id="button-addon4">
+            <button class="btn btn-outline-secondary" type="button" @onclick="Filter">Search</button>
+        </div>
+    </div>
+</ul>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+     <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-body">
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">Retry count</span>
+                        </div>
+                        <input type="text" class="form-control" id="countValue" aria-describedby="basic-addon3" @bind="Count">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-primary" type="button" style="float: right; display: @(IsSaveCount ? "none" : "block");" @onclick="@(_ => SaveCount())">
+                                Save
+                            </button>
+                            <button class="btn btn-primary" style="float: right; display: @(IsSaveCount ? "block" : "none");" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Save
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">Last retry date</span>
+                        </div>
+                        <input type="datetime-local" class="form-control" id="dateValue" aria-describedby="basic-addon3" @bind="LastDate">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-primary" type="button" style="float: right; display: @(IsSaveDate ? "none" : "block");" @onclick="@(_ => SaveDate())">
+                                Save
+                            </button>
+                            <button class="btn btn-primary" style="float: right; display: @(IsSaveDate ? "block" : "none");" type="button" disabled>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Save
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" type="button" style="display: @(IsRefreshing ? "none" : "block");" @onclick="@(_ => Filter())">
+                        Refresh
+                    </button>
+                    <button class="btn btn-primary" style="display: @(IsRefreshing ? "block" : "none");" type="button" disabled>
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private string EmailFilter { get; set; }
+    private int Count { get; set; }
+    private DateTime? LastDate { get; set; }
+    private bool IsSaveCount { get; set; } = false;
+    private bool IsSaveDate { get; set; } = false;
+    private bool IsRefreshing { get; set; } = false;
+
+    RetryDataViewModel _data;
+
+    private async Task Filter()
+    {
+        IsRefreshing = true;
+
+        _data = await _retryService.GetData(EmailFilter);
+        Count = _data.Count;
+        LastDate = _data.LastDate;
+
+        IsRefreshing = false;
+    }
+
+    private async Task SaveCount()
+    {
+        IsSaveCount = true;
+        
+        _data = await _retryService.SetCount(EmailFilter, Count);
+        Count = _data.Count;
+        LastDate = _data.LastDate;
+
+        IsSaveCount = false;
+    }
+    
+    private async Task SaveDate()
+    {
+        IsSaveDate = true;
+        
+        _data = await _retryService.SetDate(EmailFilter, LastDate);
+        Count = _data.Count;
+        LastDate = _data.LastDate;
+
+        IsSaveDate = false;
+    }
+}

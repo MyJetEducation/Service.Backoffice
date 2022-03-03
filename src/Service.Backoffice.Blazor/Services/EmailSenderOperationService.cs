@@ -27,6 +27,7 @@ namespace Service.Backoffice.Blazor.Services
 					.Operations
 					.OrderByDescending(entity => entity.Date)
 					.Select(entity => new {entity.Date, entity.Value})
+					.Take(20)
 					.ToArrayAsync();
 
 				return new EmailSenderOperationDataViewModel
@@ -53,14 +54,28 @@ namespace Service.Backoffice.Blazor.Services
 		{
 			var email = JsonConvert.DeserializeObject<EmailModel>(contents);
 
-			if (email is not {Subject: "Registration Confirm"}) 
+			string addr = null;
+			switch (email?.Subject)
+			{
+				case "Registration Confirm":
+					addr = "register-confirm";
+					break;
+				case "Recovery Password":
+					addr = "password-recovery";
+					break;
+				case "Change Email":
+					addr = "change-email";
+					break;
+			}
+
+			if (addr == null)
 				return null;
 
-			HashEmailDataModel hashData = ((JObject) email.Data).ToObject<HashEmailDataModel>();
-			if (hashData == null)
-				return null;
+			var hashData = ((JObject) email.Data).ToObject<HashEmailDataModel>();
 
-			return $"https://web.dfnt.work/register-confirm?hash={hashData.Hash}";
+			return hashData == null
+				? null
+				: $"https://web.dfnt.work/{addr}?hash={hashData.Hash}";
 		}
 
 		private static string FormatValue(string value) => value.IsNullOrWhiteSpace()
