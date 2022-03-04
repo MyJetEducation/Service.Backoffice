@@ -3,6 +3,7 @@
 @using Service.Core.Client.Constants
 @using Service.Core.Client.Extensions
 @using Service.Education.Constants
+@using Service.Education.Helpers
 @using Service.Education.Structure
 @using Service.EducationProgress.Domain.Models
 
@@ -137,10 +138,21 @@
 
                                     @foreach (EducationProgressDto task in taskInfo)
                                     {
-                                        string tdclass = task.Value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
+                                        int? value = task.Value;
+                                        string elseValue = "";
+                                        
+                                            if (EducationHelper.GetTask(tutorialGroups.Key, unitGroup.Key, task.Task).TaskType == EducationTaskType.Case 
+                                                && task.HasProgress
+                                                && value != Progress.MaxProgress)
+                                            {
+                                                value = Progress.MaxProgress;
+                                                elseValue = $" ({task.Value.ToString()})";
+                                            }
+
+                                        string tdclass = value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
 
                                         <td class="@tdclass">
-                                            @task.Value
+                                            @value@elseValue
 
                                             @if (task.HasProgress)
                                             {
