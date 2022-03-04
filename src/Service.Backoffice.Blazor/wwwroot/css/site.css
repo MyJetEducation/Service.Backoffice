@@ -406,7 +406,6 @@ a, .btn-link {
 
 .progress-table {
     text-align: center;
-    max-width: 460pt;
 }
 
 .del-btn {
@@ -442,4 +441,28 @@ a, .btn-link {
 .header-link:hover {
     cursor: pointer;
     background-color: #e9ecef;
+}
+
+.task-date {
+    display: block;
+    color: dimgray;
+    font-size: 10px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.task-date:hover {
+    text-decoration: underline;
+}
+
+.progress-table-value-td {
+    width: 12%;
+}
+
+.progress-table-value-td:hover {
+    background: #e9ecef;
+}
+
+.progress-table-head-td {
+    vertical-align: middle !important;
 }

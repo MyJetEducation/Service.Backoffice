@@ -10,5 +10,7 @@ namespace Service.Backoffice.Blazor.Services
 		ValueTask<EducationProgressDataViewModel> ClearProgress(string email, EducationTutorial? tutorial, int? unit, int? task);
 
 		ValueTask ClearAll(string email, ClearProgressFlags clear);
+		
+		ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string email, EducationTutorial changeTutorial, int changeUnit, int changeTask, DateTime? changeDate);
 	}
 }

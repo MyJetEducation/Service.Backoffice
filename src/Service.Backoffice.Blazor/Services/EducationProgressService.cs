@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+﻿using Newtonsoft.Json;
 using Service.Backoffice.Blazor.Models;
 using Service.Backoffice.Blazor.Settings;
 using Service.Core.Client.Extensions;
@@ -12,6 +12,7 @@ using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
 using Service.UserInfo.Crud.Grpc;
 using Service.UserInfo.Crud.Grpc.Models;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 using KeyValueGetKeysGrpcRequest = Service.KeyValue.Grpc.Models.GetKeysGrpcRequest;
 using KeyValueItemsGetGrpcRequest = Service.KeyValue.Grpc.Models.ItemsGetGrpcRequest;
 using KeyValueItemsPutGrpcRequest = Service.KeyValue.Grpc.Models.ItemsPutGrpcRequest;
@@ -171,6 +172,58 @@ namespace Service.Backoffice.Blazor.Services
 			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 
 			return userInfoResponse?.UserInfo?.UserId;
+		}
+
+		public async ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string email, EducationTutorial tutorial, int unit, int task, DateTime? date)
+		{
+			if (email.IsNullOrWhiteSpace())
+				return new EducationProgressChangeDateDataViewModel("Please enter user email");
+			
+			if (date == null)
+				return new EducationProgressChangeDateDataViewModel("Date is not valid");
+
+			Guid? userId = await GetUserId(email);
+			if (userId == null)
+				return new EducationProgressChangeDateDataViewModel($"No user found by email {email}");
+
+			string educationProgressKey = Program.Settings.ServerKeyValueKeys.EducationProgressKey;
+
+			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
+			{
+				UserId = userId,
+				Key = educationProgressKey
+			});
+
+			if (response == null)
+				return new EducationProgressChangeDateDataViewModel($"Error occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
+
+			EducationProgressDto[] dtos = JsonConvert.DeserializeObject<EducationProgressDto[]>(response.Value);
+			if (dtos == null)
+				return new EducationProgressChangeDateDataViewModel($"Error (2) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
+
+			EducationProgressDto dto = dtos.Where(dto => dto.Tutorial == tutorial)
+				.Where(dto => dto.Unit == unit)
+				.First(dto => dto.Task == task);
+
+			dto.Date = date;
+
+			CommonGrpcResponse saveResponse = await _serverKeyValueService.Service.Put(new ItemsPutGrpcRequest
+			{
+				UserId = userId,
+				Items = new[]
+				{
+					new KeyValueGrpcModel
+					{
+						Key = educationProgressKey,
+						Value = JsonConvert.SerializeObject(dtos)
+					}
+				}
+			});
+
+			if (!saveResponse.IsSuccess)
+				return new EducationProgressChangeDateDataViewModel($"Error (3) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
+
+			return new EducationProgressChangeDateDataViewModel();
 		}
 	}
 }

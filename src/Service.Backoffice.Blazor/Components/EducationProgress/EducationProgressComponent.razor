@@ -9,6 +9,38 @@
 
 @inject IEducationProgressService _educationProgressService
 
+@if (IsShowChangeTaskDateModal)
+{
+    <div class="modal fade show" id="myModal" style="display:block" aria-modal="true" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">Change task date/time</h4>
+                    <button type="button" class="close" @onclick="@ModalCancel">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="datetime-local" class="form-control" id="dateValue" @bind="ChangeDate">
+                </div>
+                
+                <div class="alert alert-danger" style="padding:5px; display: @(ShowChangedError ? "block" : "none");" role="alert">
+                    @ChangedError
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn" @onclick="@ModalCancel">Cancel</button>
+                    <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="ModalOk" disabled="@IsChangingTaskDate">
+                        <span class="spinner-border spinner-border-sm" style="display: @(IsChangingTaskDate ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                        OK
+                    </button>                    
+                </div>
+
+            </div>
+        </div>
+    </div>
+}
+
 @if (_data is {ErrorText: {}})
 {
     <div class="alert alert-danger" role="alert">
@@ -110,14 +142,14 @@
                             <thead class="thead-dark">
 
                             <tr>
-                                <th width="30%">
+                                <th class="progress-table-head-td">
                                     @Enum.GetName(tutorialGroups.Key)
                                     <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
                                 </th>
 
                                 @for (var i = 1; i <= tasksCount; i++)
                                 {
-                                    <th>Task @i</th>
+                                    <th class="progress-table-value-td">Task @i</th>
                                 }
                             </tr>
 
@@ -129,7 +161,7 @@
                             @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
                             {
                                 <tr>
-                                    <td class="table-primary">
+                                    <td class="table-primary progress-table-head-td">
                                         Unit @unitGroup.Key
                                         <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
                                     </td>
@@ -139,9 +171,15 @@
                                     @foreach (EducationProgressDto task in taskInfo)
                                     {
                                         int? value = task.Value;
-                                        string elseValue = "";
-                                        
-                                            if (EducationHelper.GetTask(tutorialGroups.Key, unitGroup.Key, task.Task).TaskType == EducationTaskType.Case 
+                                        var elseValue = "";
+                                        string dateStr = null;
+
+                                        int taskId = task.Task;
+                                        var tutorialId = task.Tutorial;
+                                        var unitId = task.Unit;
+                                        DateTime? taskDate = task.Date;
+
+                                        if (EducationHelper.GetTask(tutorialGroups.Key, unitGroup.Key, taskId).TaskType == EducationTaskType.Case 
                                                 && task.HasProgress
                                                 && value != Progress.MaxProgress)
                                             {
@@ -151,12 +189,20 @@
 
                                         string tdclass = value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
 
-                                        <td class="@tdclass">
+                                        if (task.HasProgress)
+                                            dateStr = $"{taskDate:dd/MM/yyyy h:mm}";
+
+                                        <td class="@tdclass progress-table-value-td">
                                             @value@elseValue
 
                                             @if (task.HasProgress)
                                             {
-                                                <span @onclick="@(_ => Clear(task.Tutorial, task.Unit, task.Task))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                                <span @onclick="@(_ => Clear(tutorialId, unitId, taskId))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                            }
+                                            
+                                            @if (dateStr != null)
+                                            {
+                                                <div class="task-date" @onclick="@(_ => ModalShow(tutorialId, unitId, taskId, taskDate))">@dateStr</div>
                                             }
                                         </td>
                                     }
@@ -182,6 +228,15 @@
     private bool IsResettings { get; set; } = false;
     private bool IsRefreshing { get; set; } = false;
 
+    private bool IsShowChangeTaskDateModal { get; set; } = false;
+    private bool IsChangingTaskDate { get; set; } = false;
+    private DateTime? ChangeDate { get; set; }
+    private EducationTutorial ChangeTutorial { get; set; }
+    private int ChangeUnit { get; set; }
+    private int ChangeTask { get; set; }
+    private string ChangedError { get; set; }
+    private bool ShowChangedError { get; set; } = false;
+
     private bool ClearProgress { get; set; } = true;
     private bool ClearUiProgress { get; set; } = true;
     private bool ClearAchievements { get; set; }
@@ -195,7 +250,7 @@
     private async Task Filter()
     {
         IsRefreshing = true;
-        
+
         _data = await _educationProgressService.GetProgress(EmailFilter);
         TotalProgress = _data.TotalProgress;
 
@@ -205,7 +260,7 @@
     private async Task Clear(EducationTutorial? tutorial, int? unit, int? task)
     {
         IsRefreshing = true;
-        
+
         _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
         TotalProgress = _data.TotalProgress;
 
@@ -240,4 +295,36 @@
             await Filter();
     }
 
+    private void ModalShow(EducationTutorial tutorial, int unit, int task, DateTime? date)
+    {
+        ChangedError = null;
+        ChangeTutorial = tutorial;
+        ChangeUnit = unit;
+        ChangeTask = task;
+        ChangeDate = date;
+        ShowChangedError = false;
+        IsShowChangeTaskDateModal = true;
+    }
+
+    private void ModalCancel() => IsShowChangeTaskDateModal = false;
+    
+    private async void ModalOk()
+    {
+        IsChangingTaskDate = true;
+        EducationProgressChangeDateDataViewModel saved = await _educationProgressService.ChangeTaskDate(EmailFilter, ChangeTutorial, ChangeUnit, ChangeTask, ChangeDate);
+        IsChangingTaskDate = false;
+
+        if (!saved.Result)
+        {
+            ChangedError = saved.ErrorMessage;
+            ShowChangedError = true;
+        }
+        else
+        {
+            ModalCancel();
+            await Filter();
+        }
+
+        StateHasChanged();
+    }
 }
