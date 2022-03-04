@@ -19,7 +19,7 @@ namespace Service.Backoffice.Blazor.Services
 			_userProfileService = userProfileService;
 		}
 
-		public async Task<UserDataViewModel> GetUserData(string email)
+		public async ValueTask<UserDataViewModel> GetUserData(string email)
 		{
 			if (email.IsNullOrWhiteSpace())
 				return new UserDataViewModel("Please enter user email");

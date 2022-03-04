@@ -12,6 +12,8 @@ namespace Service.Backoffice.Blazor.Models
 		{
 		}
 
+		public int TotalProgress { get; set; }
+
 		public EducationProgressDto[] Items { get; set; }
 	}
 }

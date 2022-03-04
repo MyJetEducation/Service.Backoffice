@@ -4,6 +4,6 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public interface IKeyValueDataService
 	{
-		public Task<KeyValueDataViewModel> GetKeyValueData(string email);
+		public ValueTask<KeyValueDataViewModel> GetKeyValueData(string email);
 	}
 }

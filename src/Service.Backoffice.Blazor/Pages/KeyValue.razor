@@ -1,38 +1,13 @@
 @page "/keyvalue"
 
+<PageTitle>@Program.ApplicationTitle: KeyValue collection</PageTitle>
+
 @using Service.Backoffice.Blazor.Components.KeyValue;
 
-<ul class="nav nav-tabs nav-pills">
-    <li class="nav-item" style="margin: 10px">
-        <button class="nav-link @CheckActive(Menus.ReadCollection)" aria-current="page" @onclick="SetReadCollection">KeyValue collection</button>
-    </li>
-</ul>
+<h4 class="header-link" @onclick="StateHasChanged">KeyValue collection</h4>
+<hr/>
 
-<div style="margin: 10px">
-
-    @if (ActivePage == Menus.ReadCollection)
-    {
-        <KeyValueComponent/>
-    }
-</div>
+<KeyValueComponent/>
 
 @code {
-
-    private Menus ActivePage { get; set; } = Menus.ReadCollection;
-
-    private string CheckActive(Menus target) => ActivePage == target ? "active" : string.Empty;
-
-    private void SetReadCollection() => SetActive(Menus.ReadCollection);
-
-    private void SetActive(Menus page)
-    {
-        ActivePage = page;
-        StateHasChanged();
-    }
-
-    public enum Menus
-    {
-        ReadCollection
-    }
-
 }

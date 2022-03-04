@@ -22,7 +22,7 @@ namespace Service.Backoffice.Blazor
 			services.AddServerSideBlazor();
 			services.BindCodeFirstGrpc();
 			services.AddHostedService<ApplicationLifetimeManager>();
-			services.AddMyTelemetry("ED-", Program.Settings.ZipkinUrl);
+			services.AddMyTelemetry(Core.Client.Constants.Configuration.TelemetryPrefix, Program.Settings.ZipkinUrl);
 			services.AddDatabase(DatabaseContext.Schema, Program.Settings.PostgresConnectionString, options => new DatabaseContext(options));
 		}
 
@@ -33,6 +33,7 @@ namespace Service.Backoffice.Blazor
 			else
 			{
 				app.UseExceptionHandler("/Error");
+
 				// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
 				app.UseHsts();
 			}

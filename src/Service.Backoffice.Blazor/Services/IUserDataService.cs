@@ -4,6 +4,6 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public interface IUserDataService
 	{
-		public Task<UserDataViewModel> GetUserData(string email);
+		public ValueTask<UserDataViewModel> GetUserData(string email);
 	}
 }

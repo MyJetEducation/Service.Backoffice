@@ -19,17 +19,15 @@ namespace Service.Backoffice.Blazor.Services
 			_keyValueService = keyValueService;
 		}
 
-		public async Task<KeyValueDataViewModel> GetKeyValueData(string email)
+		public async ValueTask<KeyValueDataViewModel> GetKeyValueData(string email)
 		{
 			if (email.IsNullOrWhiteSpace())
 				return new KeyValueDataViewModel("Please enter user email");
 
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
-			UserInfoGrpcModel userInfo = userInfoResponse?.UserInfo;
-			if (userInfo == null)
+			Guid? userId = await GetUserId(email);
+			if (userId == null)
 				return new KeyValueDataViewModel($"No user found by email {email}");
 
-			Guid? userId = userInfo.UserId;
 			KeysGrpcResponse keysResponse = await _keyValueService.GetKeys(new GetKeysGrpcRequest {UserId = userId});
 			string[] keys = keysResponse?.Keys;
 			if (keys.IsNullOrEmpty())
@@ -44,6 +42,13 @@ namespace Service.Backoffice.Blazor.Services
 			{
 				Items = items?.Select(model => new ParamValue(model.Key, model.Value)).ToArray()
 			};
+		}
+
+		private async ValueTask<Guid?> GetUserId(string email)
+		{
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
+
+			return userInfoResponse?.UserInfo?.UserId;
 		}
 	}
 }

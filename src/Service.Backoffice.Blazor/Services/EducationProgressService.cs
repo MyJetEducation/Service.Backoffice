@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Service.Backoffice.Blazor.Models;
+using Service.Backoffice.Blazor.Settings;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Structure;
@@ -41,18 +42,11 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new EducationProgressDataViewModel("Please enter user email");
 
-			UserInfoGrpcModel userInfo = await GetUserId(email);
-			if (userInfo == null)
+			Guid? userId = await GetUserId(email);
+			if (userId == null)
 				return new EducationProgressDataViewModel($"No user found by email {email}");
 
-			return await GetProgressByUser(userInfo.UserId);
-		}
-
-		private async ValueTask<UserInfoGrpcModel> GetUserId(string email)
-		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
-
-			return userInfoResponse?.UserInfo;
+			return await GetProgressByUser(userId);
 		}
 
 		public async ValueTask<EducationProgressDataViewModel> ClearProgress(string email, EducationTutorial? tutorial, int? unit, int? task)
@@ -60,11 +54,9 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new EducationProgressDataViewModel("Please enter user email");
 
-			UserInfoGrpcModel userInfo = await GetUserId(email);
-			if (userInfo == null)
+			Guid? userId = await GetUserId(email);
+			if (userId == null)
 				return new EducationProgressDataViewModel($"No user found by email {email}");
-
-			Guid? userId = userInfo.UserId;
 
 			CommonGrpcResponse response = await _educationProgressService.InitProgressAsync(new InitEducationProgressGrpcRequest
 			{
@@ -84,7 +76,7 @@ namespace Service.Backoffice.Blazor.Services
 		{
 			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
-				Key = Program.Settings.KeyEducationProgress,
+				Key = Program.Settings.ServerKeyValueKeys.EducationProgressKey,
 				UserId = userId
 			});
 
@@ -92,56 +84,57 @@ namespace Service.Backoffice.Blazor.Services
 			if (value.IsNullOrWhiteSpace())
 				return new EducationProgressDataViewModel("Error occured while retrieving education progress for user");
 
-			EducationProgressDto[] dtos = JsonSerializer.Deserialize<EducationProgressDto[]>(value);
+			EducationProgressGrpcResponse progress = await _educationProgressService.GetProgressAsync(new GetEducationProgressGrpcRequest {UserId = userId});
 
 			return new EducationProgressDataViewModel
 			{
-				Items = dtos
+				Items = JsonSerializer.Deserialize<EducationProgressDto[]>(value),
+				TotalProgress = (progress?.Value).GetValueOrDefault()
 			};
 		}
 
-		public async Task ClearAll(string email, bool clearProgress, bool clearUiProgress, bool clearAchievements, bool clearStatuses, bool clearHabits, bool clearSkills, bool clearKnowledge, bool clearUserTime)
+		public async ValueTask ClearAll(string email, ClearProgressFlags clear)
 		{
 			if (email.IsNullOrWhiteSpace())
 				return;
 
-			UserInfoGrpcModel userInfo = await GetUserId(email);
-			if (userInfo == null)
+			Guid? userId = await GetUserId(email);
+			if (userId == null)
 				return;
 
-			Guid? userId = userInfo.UserId;
-
-			if (clearProgress)
+			if (clear.Progress)
 				await ClearProgress(email, null, null, null);
 
-			if (clearUiProgress)
+			if (clear.UiProgress)
 				await ClearUiProgress(userId);
 
-			var clearKeys = new List<string>();
-			if (clearAchievements)
-				clearKeys.AddRange(new[] {"user_achievement", "user_new_achievement", "user_new_achievement_tutorial", "education_retry_used_count", "user_new_achievement_unit"});
-			if (clearStatuses)
-				clearKeys.AddRange(new[] {"user_status", "tasks_100_prc"});
-			if (clearHabits)
-				clearKeys.AddRange(new[] {"user_habit"});
-			if (clearSkills)
-				clearKeys.AddRange(new[] {"user_skill"});
-			if (clearKnowledge)
-				clearKeys.AddRange(new[] {"user_knowledge"});
-			if (clearUserTime)
-				clearKeys.AddRange(new[] {"user_day_time", "user_time"});
-			if (clearKeys.Any())
-				await ClearServerKeyValues(userId, clearKeys);
+			var keysList = new List<string>();
+			void AddKeys(Func<ServerKeyValueKeysSettingsModel, string> value) => keysList.AddRange(value.Invoke(Program.Settings.ServerKeyValueKeys).Split(","));
+
+			if (clear.Achievements)
+				AddKeys(k => k.AchievementKeys);
+			if (clear.Statuses)
+				AddKeys(k => k.StatusKeys);
+			if (clear.Habits)
+				AddKeys(k => k.HabitKeys);
+			if (clear.Skills)
+				AddKeys(k => k.SkillKeys);
+			if (clear.Knowledge)
+				AddKeys(k => k.KnowledgeKeys);
+			if (clear.UserTime)
+				AddKeys(k => k.UserTimeKeys);
+			if (clear.Retry)
+				AddKeys(k => k.RetryKeys);
+
+			if (keysList.Any())
+				await ClearServerKeyValues(userId, keysList);
 		}
 
-		private async Task ClearServerKeyValues(Guid? userId, IEnumerable<string> keys)
+		private async Task ClearServerKeyValues(Guid? userId, IEnumerable<string> keys) => await _serverKeyValueService.Service.Delete(new ItemsDeleteGrpcRequest
 		{
-			await _serverKeyValueService.Service.Delete(new ItemsDeleteGrpcRequest
-			{
-				UserId = userId,
-				Keys = keys.ToArray()
-			});
-		}
+			UserId = userId,
+			Keys = keys.ToArray()
+		});
 
 		private async Task ClearUiProgress(Guid? userId)
 		{
@@ -171,6 +164,13 @@ namespace Service.Backoffice.Blazor.Services
 				UserId = userId,
 				Items = items
 			});
+		}
+
+		private async ValueTask<Guid?> GetUserId(string email)
+		{
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
+
+			return userInfoResponse?.UserInfo?.UserId;
 		}
 	}
 }

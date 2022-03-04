@@ -32,7 +32,7 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.PostgresConnectionString")]
         public string PostgresConnectionString { get; set; }
 
-        [YamlProperty("Backoffice.KeyEducationProgress")]
-        public string KeyEducationProgress { get; set; }
+        [YamlProperty("Backoffice.ServerKeyValueKeys")]
+        public ServerKeyValueKeysSettingsModel ServerKeyValueKeys { get; set; }
     }
 }

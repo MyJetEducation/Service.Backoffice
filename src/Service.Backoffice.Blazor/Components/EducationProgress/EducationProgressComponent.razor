@@ -15,17 +15,23 @@
     </div>
 }
 
-<ul class="nav">
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon3">User email</span>
-        </div>
-        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter">
-        <div class="input-group-append" id="button-addon4">
-            <button class="btn btn-outline-secondary" type="button" @onclick="Filter">Search</button>
+<div class="row">
+    <div class="col-sm-6">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">User email</span>
+            </div>
+            <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
+                    <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                    Search
+                </button>
+            </div>
         </div>
     </div>
-</ul>
+</div>
+<br/>
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
@@ -33,7 +39,7 @@
         <div class="col-sm-6">
             <div class="card">
                 <div class="card-header">
-                    Reset data
+                    Reset progress
                 </div>
                 <div class="card-body">
                     <div class="form-check form-check-inline">
@@ -44,7 +50,7 @@
                         <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="progress" @bind="ClearUiProgress">
                         <label class="form-check-label" for="inlineCheckbox2">UI progress</label>
                     </div>
-                    <br />
+                    <br/>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="achievements" @bind="ClearAchievements">
                         <label class="form-check-label" for="inlineCheckbox3">Achievements</label>
@@ -65,95 +71,93 @@
                         <input class="form-check-input" type="checkbox" id="inlineCheckbox7" value="knowledge" @bind="ClearKnowledge">
                         <label class="form-check-label" for="inlineCheckbox7">Knowledge</label>
                     </div>
-                    <br />
+                    <br/>
                     <div class="form-check form-check-inline">
                         <input class="form-check-input" type="checkbox" id="inlineCheckbox8" value="knowledge" @bind="ClearUserTime">
-                        <label class="form-check-label" for="inlineCheckbox8">User time</label>
+                        <label class="form-check-label" for="inlineCheckbox8">Service time</label>
                     </div>
-                    <button class="btn btn-primary" type="button" style="float:right; display:@(IsResettings ? "none" : "block");" @onclick="@(_ => ClearSome())">
-                        Reset
-                    </button>
-                    <button class="btn btn-primary" style="float:right; display:@(IsResettings ? "block" : "none");" type="button" disabled>
-                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    <br/>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox9" value="knowledge" @bind="ClearRetry">
+                        <label class="form-check-label" for="inlineCheckbox9">Retry info</label>
+                    </div>
+                    <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="ClearAll" disabled="@IsResettings">
+                        <span class="spinner-border spinner-border-sm" style="display: @(IsResettings ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
                         Reset
                     </button>
                 </div>
             </div>
         </div>
     </div>
-
-    <br />
-
-    <div class="nav">
-        <button class="btn btn-primary" type="button" style="display: @(IsRefreshing ? "none" : "block");" @onclick="@(_ => Filter())">
-            Refresh
-        </button>
-        <button class="btn btn-primary" style="display: @(IsRefreshing ? "block" : "none");" type="button" disabled>
-            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-            Refresh
-        </button>        
-    </div>
     <br/>
 
-    <div class="card">
-        <div class="card-body">
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    Progress
+                    <span class="badge badge-secondary">@TotalProgress%</span>
+                </div>
+                <div class="card-body">
 
-            @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
-            @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
+                    @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
+                    @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
 
-            @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
-            {
-                <table class="table table-bordered table-sm progress-table">
-                    <thead class="thead-dark">
-
-                    <tr>
-                        <th width="30%">
-                            @Enum.GetName(tutorialGroups.Key)
-                            <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
-                        </th>
-
-                        @for (var i = 1; i <= tasksCount; i++)
-                        {
-                            <th>Task @i</th>
-                        }
-                    </tr>
-
-                    </thead>
-                    <tbody>
-
-                    @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
-
-                    @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
+                    @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
                     {
-                        <tr>
-                            <td class="table-primary">
-                                Unit @unitGroup.Key
-                                <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
-                            </td>
+                        <table class="table table-bordered table-sm progress-table">
+                            <thead class="thead-dark">
 
-                            @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
+                            <tr>
+                                <th width="30%">
+                                    @Enum.GetName(tutorialGroups.Key)
+                                    <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                </th>
 
-                            @foreach (EducationProgressDto task in taskInfo)
+                                @for (var i = 1; i <= tasksCount; i++)
+                                {
+                                    <th>Task @i</th>
+                                }
+                            </tr>
+
+                            </thead>
+                            <tbody>
+
+                            @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
+
+                            @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
                             {
-                                string tdclass = task.Value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
+                                <tr>
+                                    <td class="table-primary">
+                                        Unit @unitGroup.Key
+                                        <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                    </td>
 
-                                <td class="@tdclass">
-                                    @task.Value
+                                    @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
 
-                                    @if (task.HasProgress)
+                                    @foreach (EducationProgressDto task in taskInfo)
                                     {
-                                        <span @onclick="@(_ => Clear(task.Tutorial, task.Unit, task.Task))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                        string tdclass = task.Value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
+
+                                        <td class="@tdclass">
+                                            @task.Value
+
+                                            @if (task.HasProgress)
+                                            {
+                                                <span @onclick="@(_ => Clear(task.Tutorial, task.Unit, task.Task))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                            }
+                                        </td>
                                     }
-                                </td>
+
+                                </tr>
                             }
 
-                        </tr>
+                            </tbody>
+                        </table>
                     }
 
-                    </tbody>
-                </table>
-            }
-
+                </div>
+            </div>
         </div>
     </div>
 }
@@ -161,8 +165,11 @@
 @code {
     private EducationProgressDataViewModel _data;
     private string EmailFilter { get; set; }
+    private int TotalProgress { get; set; } = 0;
+
     private bool IsResettings { get; set; } = false;
     private bool IsRefreshing { get; set; } = false;
+
     private bool ClearProgress { get; set; } = true;
     private bool ClearUiProgress { get; set; } = true;
     private bool ClearAchievements { get; set; }
@@ -171,21 +178,54 @@
     private bool ClearSkills { get; set; }
     private bool ClearKnowledge { get; set; }
     private bool ClearUserTime { get; set; }
+    private bool ClearRetry { get; set; }
 
     private async Task Filter()
     {
         IsRefreshing = true;
+        
         _data = await _educationProgressService.GetProgress(EmailFilter);
+        TotalProgress = _data.TotalProgress;
+
         IsRefreshing = false;
     }
 
-    private async Task Clear(EducationTutorial? tutorial, int? unit, int? task) => _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
+    private async Task Clear(EducationTutorial? tutorial, int? unit, int? task)
+    {
+        IsRefreshing = true;
+        
+        _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
+        TotalProgress = _data.TotalProgress;
 
-    private async Task ClearSome()
+        IsRefreshing = false;
+    }
+
+    private async Task ClearAll()
     {
         IsResettings = true;
-        await _educationProgressService.ClearAll(EmailFilter, ClearProgress, ClearUiProgress, ClearAchievements, ClearStatuses, ClearHabits, ClearSkills, ClearKnowledge, ClearUserTime);
+
+        await _educationProgressService.ClearAll(EmailFilter, new ClearProgressFlags
+        {
+            Progress = ClearProgress,
+            UiProgress = ClearUiProgress,
+            Achievements = ClearAchievements,
+            Statuses = ClearStatuses,
+            Habits = ClearHabits,
+            Skills = ClearSkills,
+            Knowledge = ClearKnowledge,
+            UserTime = ClearUserTime,
+            Retry = ClearRetry
+        });
+
         IsResettings = false;
+
         await Filter();
     }
+
+    public async Task EmailEnter(KeyboardEventArgs e)
+    {
+        if (e.Code is "Enter" or "NumpadEnter")
+            await Filter();
+    }
+
 }

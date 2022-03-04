@@ -116,7 +116,7 @@ namespace Service.Backoffice.Blazor.Services
 
 		private async ValueTask<Guid?> GetUserId(string email)
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
+			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest { UserName = email });
 
 			return userInfoResponse?.UserInfo?.UserId;
 		}

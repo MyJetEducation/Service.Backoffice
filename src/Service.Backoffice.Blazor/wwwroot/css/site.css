@@ -431,3 +431,15 @@ a, .btn-link {
 .progress-th {
     width: 140pt;
 }
+
+.header-link {
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 4pt;
+    display: inline;
+}
+
+.header-link:hover {
+    cursor: pointer;
+    background-color: #e9ecef;
+}
