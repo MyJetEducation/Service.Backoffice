@@ -90,7 +90,8 @@ namespace Service.Backoffice.Blazor.Services
 			return new EducationProgressDataViewModel
 			{
 				Items = JsonSerializer.Deserialize<EducationProgressDto[]>(value),
-				TotalProgress = (progress?.Value).GetValueOrDefault()
+				TaskScore = (progress?.TaskScore).GetValueOrDefault(),
+				TestScore = (progress?.TestScore).GetValueOrDefault()
 			};
 		}
 

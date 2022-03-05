@@ -117,7 +117,8 @@
         <div class="card">
             <div class="card-header">
                 Progress
-                <span class="badge badge-secondary">@TotalProgress%</span>
+                <span class="badge badge-secondary">test: @TestScore%</span>
+                <span class="badge badge-secondary">score: @TaskScore%</span>
             </div>
             <div class="card-body">
 
@@ -210,7 +211,8 @@
 @code {
     private EducationProgressDataViewModel _data;
     private string EmailFilter { get; set; }
-    private int TotalProgress { get; set; } = 0;
+    private int TestScore { get; set; } = 0;
+    private int TaskScore { get; set; } = 0;
 
     private bool IsResettings { get; set; } = false;
     private bool IsRefreshing { get; set; } = false;
@@ -239,7 +241,8 @@
         IsRefreshing = true;
 
         _data = await _educationProgressService.GetProgress(EmailFilter);
-        TotalProgress = _data.TotalProgress;
+        TestScore = _data.TestScore;
+        TaskScore = _data.TaskScore;
 
         IsRefreshing = false;
     }
@@ -249,7 +252,8 @@
         IsRefreshing = true;
 
         _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
-        TotalProgress = _data.TotalProgress;
+        TestScore = _data.TestScore;
+        TaskScore = _data.TaskScore;
 
         IsRefreshing = false;
     }
