@@ -12,57 +12,44 @@
     </div>
 }
 
-<div class="row">
-    <div class="col-sm-6">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text">User email</span>
-            </div>
-            <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" @onclick="Filter">Search</button>
-            </div>
+<div class="container min-width">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
+        <div class="input-group-append">
+            <button class="btn btn-primary" type="button" @onclick="Filter">Search</button>
         </div>
     </div>
 </div>
-<br/>
-
-<div class="nav">
-    <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
-        <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-        Refresh
-    </button>
-</div>
-<br/>
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    Retry info
-                </div>
-                <div class="card-body">
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                Retry info
+            </div>
+            <div class="card-body">
 
-                    <table class="table table-hover" style="width: 100%">
-                        <thead class="thead-dark">
+                <table class="table table-hover" style="width: 100%">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Key</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (ParamValue paramValue in _data.Items)
+                    {
                         <tr>
-                            <th>Key</th>
-                            <th>Value</th>
+                            <td>@paramValue.Param</td>
+                            <td><div class="key-value">@paramValue.Value</div></td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (ParamValue paramValue in _data.Items)
-                        {
-                            <tr>
-                                <td>@paramValue.Param</td>
-                                <td>@paramValue.Value</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
+                    }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -85,4 +72,5 @@
         if (e.Code is "Enter" or "NumpadEnter")
             await Filter();
     }
+
 }

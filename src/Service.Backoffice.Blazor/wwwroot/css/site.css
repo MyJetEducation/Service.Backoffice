@@ -466,3 +466,32 @@ a, .btn-link {
 .progress-table-head-td {
     vertical-align: middle !important;
 }
+
+.container {
+    text-align: left;
+    padding-bottom: 15px;
+    display: block;
+    margin-left: 0 !important;
+}
+
+.half-width {
+    max-width: 50% !important;
+}
+
+.small-width {
+    max-width: 34% !important;
+}
+
+.min-width {
+    max-width: 30% !important;
+}
+
+.max-width {
+    max-width: none!important;
+}
+
+.key-value {
+    overflow: scroll;
+    max-height: 200px;
+    max-width: 815px;
+}

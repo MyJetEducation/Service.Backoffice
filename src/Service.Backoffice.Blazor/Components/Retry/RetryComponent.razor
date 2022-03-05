@@ -12,58 +12,53 @@
     </div>
 }
 
-<div class="row">
-    <div class="col-sm-6">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text">User email</span>
-            </div>
-            <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
-                    <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                    Search
-                </button>
-            </div>
+<div class="container min-width">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
+        <div class="input-group-append">
+            <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
+                <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                Search
+            </button>
         </div>
     </div>
 </div>
-<br/>
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    Retry info
-                </div>
-                <div class="card-body">
+    <div class="container min-width">
+        <div class="card">
+            <div class="card-header">
+                Retry info
+            </div>
+            <div class="card-body">
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon3">Retry count</span>
-                        </div>
-                        <input type="text" class="form-control" id="countValue" aria-describedby="basic-addon3" @bind="Count">
-                        <div class="input-group-append" id="button-addon4">
-                            <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveCount" disabled="@IsSavingCount">
-                                <span class="spinner-border spinner-border-sm" style="display: @(IsSavingCount ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                                Save
-                            </button>
-                        </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">Retry count</span>
                     </div>
+                    <input type="text" class="form-control" id="countValue" aria-describedby="basic-addon3" @bind="Count">
+                    <div class="input-group-append" id="button-addon4">
+                        <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveCount" disabled="@IsSavingCount">
+                            <span class="spinner-border spinner-border-sm" style="display: @(IsSavingCount ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                            Save
+                        </button>
+                    </div>
+                </div>
 
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                            <span class="input-group-text" id="basic-addon3">Last retry date</span>
-                        </div>
-                        <input type="datetime-local" class="form-control" id="dateValue" aria-describedby="basic-addon3" @bind="LastDate">
-                        <div class="input-group-append" id="button-addon4">
-                            <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveDate" disabled="@IsSavingDate">
-                                <span class="spinner-border spinner-border-sm" style="display: @(IsSavingDate ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                                Save
-                            </button>
-                        </div>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon3">Last retry date</span>
+                    </div>
+                    <input type="datetime-local" class="form-control" id="dateValue" aria-describedby="basic-addon3" @bind="LastDate">
+                    <div class="input-group-append" id="button-addon4">
+                        <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveDate" disabled="@IsSavingDate">
+                            <span class="spinner-border spinner-border-sm" style="display: @(IsSavingDate ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                            Save
+                        </button>
                     </div>
                 </div>
             </div>

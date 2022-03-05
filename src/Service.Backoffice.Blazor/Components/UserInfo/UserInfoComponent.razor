@@ -12,81 +12,73 @@
     </div>
 }
 
-<div class="row">
-    <div class="col-sm-6">
-        <div class="input-group">
-            <div class="input-group-prepend">
-                <span class="input-group-text">User email</span>
-            </div>
-            <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
-                    <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                    Search
-                </button>
-            </div>
+<div class="container min-width">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">User email</span>
+        </div>
+        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
+        <div class="input-group-append">
+            <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
+                <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                Search
+            </button>
         </div>
     </div>
 </div>
-<br/>
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    User
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead class="thead-dark">
+    <div class="container small-width">
+        <div class="card">
+            <div class="card-header">
+                User
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th class="progress-th">Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (ParamValue paramValue in _data.UserInfoItems)
+                    {
                         <tr>
-                            <th class="progress-th">Parameter</th>
-                            <th>Value</th>
+                            <td>@paramValue.Param</td>
+                            <td>@paramValue.Value</td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (ParamValue paramValue in _data.UserInfoItems)
-                        {
-                            <tr>
-                                <td>@paramValue.Param</td>
-                                <td>@paramValue.Value</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
+                    }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <br/>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="card">
-                <div class="card-header">
-                    Account
-                </div>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead class="thead-dark">
+    <div class="container small-width">
+        <div class="card">
+            <div class="card-header">
+                Account
+            </div>
+            <div class="card-body">
+                <table class="table table-hover">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th class="progress-th">Parameter</th>
+                        <th>Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (ParamValue paramValue in _data.ProfileItems)
+                    {
                         <tr>
-                            <th class="progress-th">Parameter</th>
-                            <th>Value</th>
+                            <td>@paramValue.Param</td>
+                            <td>@paramValue.Value</td>
                         </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (ParamValue paramValue in _data.ProfileItems)
-                        {
-                            <tr>
-                                <td>@paramValue.Param</td>
-                                <td>@paramValue.Value</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
+                    }
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
