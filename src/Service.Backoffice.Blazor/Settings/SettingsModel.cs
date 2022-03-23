@@ -29,6 +29,9 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.ServerKeyValueServiceUrl")]
         public string ServerKeyValueServiceUrl { get; set; }
 
+        [YamlProperty("Backoffice.TokenRateServiceUrl")]
+        public string TokenRateServiceUrl { get; set; }
+
         [YamlProperty("Backoffice.PostgresConnectionString")]
         public string PostgresConnectionString { get; set; }
 

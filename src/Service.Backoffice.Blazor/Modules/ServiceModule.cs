@@ -12,6 +12,7 @@ namespace Service.Backoffice.Blazor.Modules
 			builder.RegisterType<EmailSenderOperationService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<EducationProgressService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<RetryService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<TokenRateService>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }
