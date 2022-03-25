@@ -8,37 +8,37 @@ using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public class UserDataService : IUserDataService
+	public class UserInfoDataService : IUserInfoDataService
 	{
 		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IGrpcServiceProxy<IUserAccountService> _userProfileService;
 
-		public UserDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IUserAccountService> userProfileService)
+		public UserInfoDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IUserAccountService> userProfileService)
 		{
 			_userInfoService = userInfoService;
 			_userProfileService = userProfileService;
 		}
 
-		public async ValueTask<UserDataViewModel> GetUserData(string email)
+		public async ValueTask<UserInfoDataViewModel> GetUserData(string email)
 		{
 			if (email.IsNullOrWhiteSpace())
-				return new UserDataViewModel("Please enter user email");
+				return new UserInfoDataViewModel("Please enter user email");
 
 			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
 			UserInfoGrpcModel userInfo = userInfoResponse?.UserInfo;
 			if (userInfo == null)
-				return new UserDataViewModel($"No user found by email {email}");
+				return new UserInfoDataViewModel($"No user found by email {email}");
 
 			Guid? userId = userInfo.UserId;
 			AccountGrpcResponse accountResponse = await _userProfileService.Service.GetAccount(new GetAccountGrpcRequest {UserId = userId});
 			AccountDataGrpcModel accountInfo = accountResponse?.Data;
 			if (accountInfo == null)
-				return new UserDataViewModel($"No user found by email {email}");
+				return new UserInfoDataViewModel($"No user found by email {email}");
 
 			return GetUserData(userInfo, accountInfo);
 		}
 
-		private static UserDataViewModel GetUserData(UserInfoGrpcModel userInfo, AccountDataGrpcModel accountInfo) => new()
+		private static UserInfoDataViewModel GetUserData(UserInfoGrpcModel userInfo, AccountDataGrpcModel accountInfo) => new()
 		{
 			UserInfoItems = new[]
 			{

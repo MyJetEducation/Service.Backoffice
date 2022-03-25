@@ -1,12 +1,12 @@
 ﻿namespace Service.Backoffice.Blazor.Models
 {
-	public class UserDataViewModel: ViewModelBase
+	public class UserInfoDataViewModel: ViewModelBase
 	{
-		public UserDataViewModel(string errorText) : base(errorText)
+		public UserInfoDataViewModel(string errorText) : base(errorText)
 		{
 		}
 
-		public UserDataViewModel()
+		public UserInfoDataViewModel()
 		{
 		}
 

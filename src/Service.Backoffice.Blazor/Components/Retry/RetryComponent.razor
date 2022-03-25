@@ -3,7 +3,7 @@
 @using Service.Backoffice.Blazor.Services
 @using Service.Core.Client.Extensions
 
-@inject IRetryService _retryService
+@inject IRetryDataService _retryService
 
 @if (_data is {ErrorText: {}})
 {

@@ -3,7 +3,7 @@ using Service.Education.Structure;
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public interface IEducationProgressService
+	public interface IEducationProgressDataService
 	{
 		ValueTask<EducationProgressDataViewModel> GetProgress(string email);
 

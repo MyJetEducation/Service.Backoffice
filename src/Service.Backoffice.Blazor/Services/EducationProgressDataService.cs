@@ -20,14 +20,14 @@ using KeyValueKeyValueGrpcModel = Service.KeyValue.Grpc.Models.KeyValueGrpcModel
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public class EducationProgressService : IEducationProgressService
+	public class EducationProgressDataService : IEducationProgressDataService
 	{
 		private readonly EducationProgress.Grpc.IEducationProgressService _educationProgressService;
 		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 		private readonly IKeyValueService _keyValueService;
 
-		public EducationProgressService(EducationProgress.Grpc.IEducationProgressService educationProgressService,
+		public EducationProgressDataService(EducationProgress.Grpc.IEducationProgressService educationProgressService,
 			IGrpcServiceProxy<IUserInfoService> userInfoService,
 			IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService,
 			IKeyValueService keyValueService)

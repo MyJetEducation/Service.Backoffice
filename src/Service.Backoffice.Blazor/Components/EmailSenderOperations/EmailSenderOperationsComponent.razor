@@ -2,7 +2,7 @@
 @using Service.Backoffice.Blazor.Services
 @using Service.Core.Client.Extensions
 
-@inject IEmailSenderOperationService _emailSenderOperationService
+@inject IEmailSenderOperationDataService _emailSenderOperationService
 
 @if (_data is {ErrorText: {}})
 {
@@ -31,7 +31,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (EmailSenderOperationParamValue paramValue in _data.Items)
+                    @foreach (EmailSenderOperationDataParamValue paramValue in _data.Items)
                     {
                         <tr>
                             <td>

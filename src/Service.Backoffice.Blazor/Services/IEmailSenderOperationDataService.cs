@@ -2,7 +2,7 @@
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public interface IEmailSenderOperationService
+	public interface IEmailSenderOperationDataService
 	{
 		public ValueTask<EmailSenderOperationDataViewModel> GetOperationData();
 	}

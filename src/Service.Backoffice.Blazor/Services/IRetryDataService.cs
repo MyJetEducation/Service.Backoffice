@@ -2,7 +2,7 @@
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public interface IRetryService
+	public interface IRetryDataService
 	{
 		ValueTask<RetryDataViewModel> GetData(string email);
 

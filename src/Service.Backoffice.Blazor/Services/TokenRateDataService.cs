@@ -6,11 +6,11 @@ using Service.TokenRate.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public class TokenRateService : ITokenRateDataService
+	public class TokenRateDataService : ITokenRateDataService
 	{
 		private readonly IGrpcServiceProxy<ITokenRateService> _tokenRateService;
 
-		public TokenRateService(IGrpcServiceProxy<ITokenRateService> tokenRateService) => _tokenRateService = tokenRateService;
+		public TokenRateDataService(IGrpcServiceProxy<ITokenRateService> tokenRateService) => _tokenRateService = tokenRateService;
 
 		public async ValueTask<TokenRateDataViewModel> GetData()
 		{

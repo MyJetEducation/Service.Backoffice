@@ -8,12 +8,12 @@ using Service.EmailSender.Domain.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public class EmailSenderOperationService : IEmailSenderOperationService
+	public class EmailSenderOperationDataService : IEmailSenderOperationDataService
 	{
-		private readonly ILogger<EmailSenderOperationService> _logger;
+		private readonly ILogger<EmailSenderOperationDataService> _logger;
 		private readonly DbContextOptionsBuilder<DatabaseContext> _dbContextOptionsBuilder;
 
-		public EmailSenderOperationService(DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder, ILogger<EmailSenderOperationService> logger)
+		public EmailSenderOperationDataService(DbContextOptionsBuilder<DatabaseContext> dbContextOptionsBuilder, ILogger<EmailSenderOperationDataService> logger)
 		{
 			_dbContextOptionsBuilder = dbContextOptionsBuilder;
 			_logger = logger;
@@ -38,7 +38,7 @@ namespace Service.Backoffice.Blazor.Services
 						string content = e.Value;
 						string value = FormatValue(content);
 						string url = GetUrl(content);
-						return new EmailSenderOperationParamValue(datetime, value, url);
+						return new EmailSenderOperationDataParamValue(datetime, value, url);
 					}).ToArray()
 				};
 			}

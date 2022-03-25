@@ -3,12 +3,12 @@
 @using Service.Backoffice.Blazor.Services
 @using Service.Core.Client.Extensions
 
-@inject IUserDataService _userDataService
+@inject IUserInfoDataService _userInfoDataService
 
-@if (_data is {ErrorText: {}})
+@if (_infoData is {ErrorText: {}})
 {
     <div class="alert alert-danger" role="alert">
-        @_data.ErrorText
+        @_infoData.ErrorText
     </div>
 }
 
@@ -27,7 +27,7 @@
     </div>
 </div>
 
-@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+@if (_infoData != null && _infoData.ErrorText.IsNullOrEmpty())
 {
     <div class="container small-width">
         <div class="card">
@@ -43,7 +43,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (ParamValue paramValue in _data.UserInfoItems)
+                    @foreach (ParamValue paramValue in _infoData.UserInfoItems)
                     {
                         <tr>
                             <td>@paramValue.Param</td>
@@ -70,7 +70,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (ParamValue paramValue in _data.ProfileItems)
+                    @foreach (ParamValue paramValue in _infoData.ProfileItems)
                     {
                         <tr>
                             <td>@paramValue.Param</td>
@@ -85,7 +85,7 @@
 }
 
 @code {
-    private UserDataViewModel _data;
+    private UserInfoDataViewModel _infoData;
     private string EmailFilter { get; set; }
     private bool IsRefreshing { get; set; } = false;
 
@@ -93,7 +93,7 @@
     {
         IsRefreshing = true;
 
-        _data = await _userDataService.GetUserData(EmailFilter);
+        _infoData = await _userInfoDataService.GetUserData(EmailFilter);
 
         IsRefreshing = false;
     }

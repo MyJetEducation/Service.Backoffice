@@ -7,12 +7,12 @@ namespace Service.Backoffice.Blazor.Modules
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<UserDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<UserInfoDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<KeyValueDataService>().AsImplementedInterfaces().SingleInstance();
-			builder.RegisterType<EmailSenderOperationService>().AsImplementedInterfaces().SingleInstance();
-			builder.RegisterType<EducationProgressService>().AsImplementedInterfaces().SingleInstance();
-			builder.RegisterType<RetryService>().AsImplementedInterfaces().SingleInstance();
-			builder.RegisterType<TokenRateService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<EmailSenderOperationDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<EducationProgressDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<RetryDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<TokenRateDataService>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }

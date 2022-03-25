@@ -11,12 +11,12 @@ using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
-	public class RetryService : IRetryService
+	public class RetryDataService : IRetryDataService
 	{
 		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
-		public RetryService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
+		public RetryDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
 		{
 			_userInfoService = userInfoService;
 			_serverKeyValueService = serverKeyValueService;
