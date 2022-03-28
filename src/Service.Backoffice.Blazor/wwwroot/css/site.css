@@ -495,3 +495,83 @@ a, .btn-link {
     max-height: 200px;
     max-width: 815px;
 }
+
+.collapse-body {
+    display: block;
+    position: absolute;
+    overflow: auto;
+    background: white;
+    border: 1px solid gray;
+    border-radius: 3px;
+    text-align: left;
+    padding: 7px;
+    margin-top: 2px;
+}
+
+.collapsible-btn > span {
+    height: 24px;
+    width: -webkit-fill-available;
+}
+
+.collapsible-btn.expand > span {
+    background-color: #ffc107;
+    color: black;
+}
+
+.user-id {
+    display: block;
+    font-size: 10px;
+    color: gray;
+}
+
+.price {
+    text-align: right;
+    padding-right: 15px !important;
+    font-weight: bold;
+}
+
+.account-outcome {
+    background-color: #F5B7B1;
+}
+
+.account-income {
+    background-color: #ABEBC6;
+}
+
+.collapsible-row {
+    display: block;
+}
+
+#user-account-table td {
+    vertical-align: middle;
+    padding: 0.45rem;
+}
+
+.mud-table-cell-custom-group {
+    font-weight: 500;
+}
+
+.mud-table-cell-custom-group-footer {
+    padding-bottom: 50px;
+    text-align: right;
+    font-weight: bold !important;
+}
+
+.value-column {
+    font-weight: bold !important;
+}
+
+.json-info {
+    background-color: silver;
+    padding: 10px;
+}
+
+.json-info pre {
+    background-color: silver;
+    margin-bottom: 0!important;
+}
+
+.user-name {
+    font-weight: bold !important;
+    color: blue !important;
+}

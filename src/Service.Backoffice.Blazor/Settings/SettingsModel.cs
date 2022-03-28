@@ -14,6 +14,9 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.ElkLogs")]
         public LogElkSettings ElkLogs { get; set; }
 
+        [YamlProperty("Backoffice.PostgresConnectionString")]
+        public string PostgresConnectionString { get; set; }
+
         [YamlProperty("Backoffice.UserAccountServiceUrl")]
         public string UserAccountServiceUrl { get; set; }
 
@@ -32,8 +35,8 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.TokenRateServiceUrl")]
         public string TokenRateServiceUrl { get; set; }
 
-        [YamlProperty("Backoffice.PostgresConnectionString")]
-        public string PostgresConnectionString { get; set; }
+        [YamlProperty("Backoffice.UserTokenAccountServiceUrl")]
+        public string UserTokenAccountServiceUrl { get; set; }
 
         [YamlProperty("Backoffice.ServerKeyValueKeys")]
         public ServerKeyValueKeysSettingsModel ServerKeyValueKeys { get; set; }

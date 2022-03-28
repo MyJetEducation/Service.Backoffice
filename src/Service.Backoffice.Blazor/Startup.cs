@@ -7,6 +7,7 @@ using Prometheus;
 using Service.Backoffice.Blazor.Modules;
 using Service.Backoffice.Postgres;
 using SimpleTrading.ServiceStatusReporterConnector;
+using MudBlazor.Services;
 
 namespace Service.Backoffice.Blazor
 {
@@ -24,6 +25,7 @@ namespace Service.Backoffice.Blazor
 			services.AddHostedService<ApplicationLifetimeManager>();
 			services.AddMyTelemetry(Core.Client.Constants.Configuration.TelemetryPrefix, Program.Settings.ZipkinUrl);
 			services.AddDatabase(DatabaseContext.Schema, Program.Settings.PostgresConnectionString, options => new DatabaseContext(options));
+			services.AddMudServices();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

@@ -1,0 +1,23 @@
+﻿<div class="collapsible-row">
+    <div @onclick="Toggle" class="collapsible-btn @BtnClass">@BtnContent</div>
+    @if (!Collapsed)
+    {
+        @ChildContent
+    }
+</div>
+
+@code
+{
+    [Parameter]
+    public RenderFragment ChildContent { get; set; }
+
+    [Parameter]
+    public RenderFragment BtnContent { get; set; }
+
+    [Parameter]
+    public bool Collapsed { get; set; } = true;
+
+    string BtnClass => Collapsed ? "collapsed" : "expand";
+
+    void Toggle() => Collapsed = !Collapsed;
+}

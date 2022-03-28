@@ -13,6 +13,7 @@ namespace Service.Backoffice.Blazor.Modules
 			builder.RegisterType<EducationProgressDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<RetryDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<TokenRateDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<UserTokenAccountDataService>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }

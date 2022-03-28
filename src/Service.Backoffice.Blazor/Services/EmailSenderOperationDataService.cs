@@ -36,7 +36,7 @@ namespace Service.Backoffice.Blazor.Services
 					{
 						string datetime = $"{e.Date:dd.MM.yyyy}{Environment.NewLine}{e.Date:HH:mm:ss}";
 						string content = e.Value;
-						string value = FormatValue(content);
+						string value = ServiceHelper.FormatJsonValue(content);
 						string url = GetUrl(content);
 						return new EmailSenderOperationDataParamValue(datetime, value, url);
 					}).ToArray()
@@ -77,9 +77,5 @@ namespace Service.Backoffice.Blazor.Services
 				? null
 				: $"https://web.dfnt.work/{addr}?hash={hashData.Hash}";
 		}
-
-		private static string FormatValue(string value) => value.IsNullOrWhiteSpace()
-			? string.Empty
-			: JToken.Parse(value).ToString(Formatting.Indented);
 	}
 }
