@@ -557,7 +557,7 @@ a, .btn-link {
     font-weight: bold !important;
 }
 
-.value-column {
+.value-column1 {
     font-weight: bold !important;
 }
 
@@ -571,7 +571,7 @@ a, .btn-link {
     margin-bottom: 0!important;
 }
 
-.user-name {
+.value-column2 {
     font-weight: bold !important;
     color: blue !important;
 }

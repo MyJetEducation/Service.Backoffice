@@ -14,6 +14,7 @@ namespace Service.Backoffice.Blazor.Modules
 			builder.RegisterType<RetryDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<TokenRateDataService>().AsImplementedInterfaces().SingleInstance();
 			builder.RegisterType<UserTokenAccountDataService>().AsImplementedInterfaces().SingleInstance();
+			builder.RegisterType<MarketProductDataService>().AsImplementedInterfaces().SingleInstance();
 		}
 	}
 }

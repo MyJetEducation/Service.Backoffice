@@ -105,7 +105,7 @@
             </MudTh>
         </HeaderContent>
         <GroupHeaderTemplate>
-            <MudTh Class="mud-table-cell-custom-group user-name" colspan="7">@($"{context.GroupName}: {context.Key}")</MudTh>
+            <MudTh Class="mud-table-cell-custom-group value-column2" colspan="7">@($"{context.GroupName}: {context.Key}")</MudTh>
         </GroupHeaderTemplate>
         <RowTemplate>
             <MudTd DataLabel="User">@context.UserName</MudTd>
@@ -152,7 +152,6 @@
 @code {
     private UserTokenAccountDataViewModel _data;
     private MudTable<UserTokenAccountDataOperationViewModel> _table;
-    private string _searchString = null;
     private int _totalItems;
     private bool IsRefreshing { get; set; } = false;
 

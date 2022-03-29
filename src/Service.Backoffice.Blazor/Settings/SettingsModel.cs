@@ -38,6 +38,9 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.UserTokenAccountServiceUrl")]
         public string UserTokenAccountServiceUrl { get; set; }
 
+        [YamlProperty("Backoffice.MarketProductServiceUrl")]
+        public string MarketProductServiceUrl { get; set; }
+
         [YamlProperty("Backoffice.ServerKeyValueKeys")]
         public ServerKeyValueKeysSettingsModel ServerKeyValueKeys { get; set; }
     }
