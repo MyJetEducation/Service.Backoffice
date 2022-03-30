@@ -44,7 +44,8 @@ namespace Service.Backoffice.Blazor.Services
 					Disabled = product.Disabled,
 					Price = $"{product.Price:0.00}",
 					PriceValue = product.Price.GetValueOrDefault(),
-					Category = product.Category
+					Category = product.Category,
+					Priority = product.Priority
 				});
 			}
 
@@ -63,6 +64,7 @@ namespace Service.Backoffice.Blazor.Services
 				nameof(MarketProductGrpcModel.Disabled) => o => o.Disabled,
 				nameof(MarketProductGrpcModel.Price) => o => o.Price,
 				nameof(MarketProductGrpcModel.ProductType) => o => o.ProductType,
+				nameof(MarketProductGrpcModel.Priority) => o => o.Priority,
 				_ => o => o.ProductType
 				};
 
@@ -79,7 +81,8 @@ namespace Service.Backoffice.Blazor.Services
 				ProductType = product.ProductType,
 				Price = product.PriceValue,
 				Disabled = product.Disabled,
-				Category = product.Category
+				Category = product.Category,
+				Priority = product.Priority
 			});
 
 			return result.IsSuccess == false

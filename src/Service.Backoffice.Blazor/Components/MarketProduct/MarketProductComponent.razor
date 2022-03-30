@@ -31,17 +31,8 @@
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
     <MudTable RowStyleFunc="RowStyleFunc" ServerData="@(new Func<TableState, Task<TableData<MarketProductItemDataViewModel>>>(ServerReload))"
-              Dense="true"
-              Hover="true"
-              FixedHeader="true"
-              CanCancelEdit="true"
-              CommitEditTooltip="Edit"
-              IsEditRowSwitchingBlocked="true"
-              RowEditPreview="BackupItem"
-              RowEditCancel="ResetItem"
-              OnCommitEditClick="SaveItem"
-              @bind-SelectedItem="_selectedItem"
-              @ref="_table">
+              Dense="true" Hover="true" FixedHeader="true" CanCancelEdit="true" CommitEditTooltip="Edit" IsEditRowSwitchingBlocked="true"
+              RowEditPreview="BackupItem" RowEditCancel="ResetItem" OnCommitEditClick="SaveItem" @bind-SelectedItem="_selectedItem" @ref="_table">
         <ToolBarContent>
             <MudSelect Label="Product" Placeholder="Product" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@ProductTypeFilter" Class="mr-5">
                 @foreach (MarketProductType productType in Enum.GetValues<MarketProductType>())
@@ -68,6 +59,9 @@
                 <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Disabled)" T="MarketProductItemDataViewModel">Disabled</MudTableSortLabel>
             </MudTh>
             <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Priority)" T="MarketProductItemDataViewModel">Priority</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
                 <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.ProductType)" T="MarketProductItemDataViewModel">Product</MudTableSortLabel>
             </MudTh>
             <MudTh>
@@ -84,14 +78,18 @@
             <MudTd DataLabel="Disabled">
                 <MudIcon Icon="@(context.Disabled ? Icons.Filled.CheckBox : Icons.Filled.CheckBoxOutlineBlank)"/>
             </MudTd>
+            <MudTd DataLabel="Priority">@context.Priority</MudTd>
             <MudTd DataLabel="Product" Class="value-column2">@context.ProductType.ToString()</MudTd>
             <MudTd DataLabel="Date">@context.Date</MudTd>
             <MudTd DataLabel="Price">@context.Price</MudTd>
             <MudTd DataLabel="Name">@context.Category</MudTd>
         </RowTemplate>
         <RowEditingTemplate>
-            <MudTd DataLabel="Enabled">
+            <MudTd DataLabel="Disabled">
                 <MudCheckBox @bind-Checked="@context.Disabled"/>
+            </MudTd>
+            <MudTd DataLabel="Priority">
+                <MudNumericField T="int" @bind-Value="@context.Priority" Validation="(Func<int, bool>) (value => value >= 0)" Required Min="0"/>
             </MudTd>
             <MudTd DataLabel="Product">@context.ProductType.ToString()</MudTd>
             <MudTd DataLabel="Date">@context.Date</MudTd>
@@ -146,7 +144,8 @@
             Disabled = item.Disabled,
             Price = item.Price,
             PriceValue = item.PriceValue,
-            Category = item.Category
+            Category = item.Category,
+            Priority = item.Priority
         };
     }
 
@@ -160,6 +159,7 @@
         item.Price = _backupItem.Price;
         item.PriceValue = _backupItem.PriceValue;
         item.Category = _backupItem.Category;
+        item.Priority = _backupItem.Priority;
     }
 
     private async void SaveItem()
