@@ -14,8 +14,6 @@ namespace Service.Backoffice.Blazor.Models
 		
 		public decimal PriceValue { get; set; }
 
-		public string Name { get; set; }
-
-		public string Description { get; set; }
+		public MarketProductCategory Category { get; set; }
 	}
 }

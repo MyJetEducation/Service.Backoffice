@@ -15,11 +15,12 @@ namespace Service.Backoffice.Blazor.Services
 
 		public MarketProductDataService(IGrpcServiceProxy<IMarketProductService> marketProductService) => _marketProductService = marketProductService;
 
-		public async ValueTask<MarketProductDataViewModel> GetProducts(int? productType, DateTime? dateFrom, DateTime? dateTo, bool? withDisabled, TableState tableState)
+		public async ValueTask<MarketProductDataViewModel> GetProducts(int? productType, int? category, DateTime? dateFrom, DateTime? dateTo, bool? withDisabled, TableState tableState)
 		{
 			ProductListGrpcResponse productList = await _marketProductService.Service.GetProductListAsync(new GetProductListGrpcRequest
 			{
 				ProductTypes = productType != null ? new[] {(MarketProductType) productType} : null,
+				ProductCategory = category != null ? (MarketProductCategory) category : null,
 				WithDisabled = withDisabled
 			});
 
@@ -43,8 +44,7 @@ namespace Service.Backoffice.Blazor.Services
 					Disabled = product.Disabled,
 					Price = $"{product.Price:0.00}",
 					PriceValue = product.Price.GetValueOrDefault(),
-					Name = product.Name,
-					Description = product.Description
+					Category = product.Category
 				});
 			}
 
@@ -59,9 +59,8 @@ namespace Service.Backoffice.Blazor.Services
 			sortLabel switch
 			{
 				nameof(MarketProductGrpcModel.Date) => o => o.Date,
-				nameof(MarketProductGrpcModel.Description) => o => o.Description,
+				nameof(MarketProductGrpcModel.Category) => o => o.Category,
 				nameof(MarketProductGrpcModel.Disabled) => o => o.Disabled,
-				nameof(MarketProductGrpcModel.Name) => o => o.Name,
 				nameof(MarketProductGrpcModel.Price) => o => o.Price,
 				nameof(MarketProductGrpcModel.ProductType) => o => o.ProductType,
 				_ => o => o.ProductType
@@ -75,19 +74,12 @@ namespace Service.Backoffice.Blazor.Services
 			if (product.PriceValue <= 0)
 				return UpdateProductResultViewModel.ErrorResult("Invalid price value!");
 
-			if (product.Name.IsNullOrWhiteSpace())
-				return UpdateProductResultViewModel.ErrorResult("Empty name value!");
-
-			if (product.Description.IsNullOrWhiteSpace())
-				return UpdateProductResultViewModel.ErrorResult("Empty description value!");
-
 			CommonGrpcResponse result = await _marketProductService.Service.UpdateProductAsync(new UpdateProductGrpcRequest
 			{
 				ProductType = product.ProductType,
 				Price = product.PriceValue,
 				Disabled = product.Disabled,
-				Name = product.Name,
-				Description = product.Description
+				Category = product.Category
 			});
 
 			return result.IsSuccess == false

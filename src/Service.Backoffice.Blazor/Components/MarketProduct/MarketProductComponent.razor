@@ -49,6 +49,12 @@
                     <MudSelectItem Value="@((int?) Convert.ToInt32(productType))">@Enum.GetName(productType)</MudSelectItem>
                 }
             </MudSelect>
+            <MudSelect Label="Category" Placeholder="Category" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@ProductCategoryFilter" Class="mr-5">
+                @foreach (MarketProductCategory category in Enum.GetValues<MarketProductCategory>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(category))">@Enum.GetName(category)</MudSelectItem>
+                }
+            </MudSelect>
             <MudDatePicker Placeholder="DateFrom" Label="DateFrom" @bind-Date="@DateFromFilter" Class="mr-5"/>
             <MudDatePicker Placeholder="DateTo" Label="DateTo" @bind-Date="@DateToFilter" Class="mr-5"/>
             <MudCheckBox Label="Show disabled" @bind-Checked="@WithDisabled" Class="mr-5"/>
@@ -71,10 +77,7 @@
                 <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Price)" T="MarketProductItemDataViewModel">Price</MudTableSortLabel>
             </MudTh>
             <MudTh>
-                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Name)" T="MarketProductItemDataViewModel">Name</MudTableSortLabel>
-            </MudTh>
-            <MudTh>
-                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Description)" T="MarketProductItemDataViewModel">Description</MudTableSortLabel>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Category)" T="MarketProductItemDataViewModel">Category</MudTableSortLabel>
             </MudTh>
         </HeaderContent>
         <RowTemplate>
@@ -84,8 +87,7 @@
             <MudTd DataLabel="Product" Class="value-column2">@context.ProductType.ToString()</MudTd>
             <MudTd DataLabel="Date">@context.Date</MudTd>
             <MudTd DataLabel="Price">@context.Price</MudTd>
-            <MudTd DataLabel="Name">@context.Name</MudTd>
-            <MudTd DataLabel="Description">@context.Description</MudTd>
+            <MudTd DataLabel="Name">@context.Category</MudTd>
         </RowTemplate>
         <RowEditingTemplate>
             <MudTd DataLabel="Enabled">
@@ -96,11 +98,13 @@
             <MudTd DataLabel="Price">
                 <MudNumericField T="decimal" @bind-Value="@context.PriceValue" Validation="(Func<decimal, bool>) (value => value > 0)" Required Min="0m"/>
             </MudTd>
-            <MudTd DataLabel="Name">
-                <MudTextField T="string" @bind-Value="@context.Name" Required/>
-            </MudTd>
-            <MudTd DataLabel="Description">
-                <MudTextField @bind-Value="@context.Description" Required/>
+            <MudTd DataLabel="Category">
+                <MudSelect T="MarketProductCategory" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@context.Category" Class="mr-5">
+                    @foreach (MarketProductCategory category in Enum.GetValues<MarketProductCategory>())
+                    {
+                        <MudSelectItem Value="@category">@Enum.GetName(category)</MudSelectItem>
+                    }
+                </MudSelect>
             </MudTd>
         </RowEditingTemplate>
         <NoRecordsContent>
@@ -127,6 +131,7 @@
     private DateTime? DateFromFilter { get; set; }
     private DateTime? DateToFilter { get; set; }
     private int? ProductTypeFilter { get; set; }
+    private int? ProductCategoryFilter { get; set; }
 
     private string RowStyleFunc(MarketProductItemDataViewModel model, int index) => $"background-color: {(model.Disabled ? "#F5B7B1" : "none")};";
 
@@ -141,8 +146,7 @@
             Disabled = item.Disabled,
             Price = item.Price,
             PriceValue = item.PriceValue,
-            Name = item.Name,
-            Description = item.Description
+            Category = item.Category
         };
     }
 
@@ -155,8 +159,7 @@
         item.Disabled = _backupItem.Disabled;
         item.Price = _backupItem.Price;
         item.PriceValue = _backupItem.PriceValue;
-        item.Name = _backupItem.Name;
-        item.Description = _backupItem.Description;
+        item.Category = _backupItem.Category;
     }
 
     private async void SaveItem()
@@ -180,7 +183,7 @@
         StateHasChanged();
 
         _table.SetEditingItem(null);
-        _data = await _marketProductDataService.GetProducts(ProductTypeFilter, DateFromFilter, DateToFilter, WithDisabled, state ?? new TableState());
+        _data = await _marketProductDataService.GetProducts(ProductTypeFilter, ProductCategoryFilter, DateFromFilter, DateToFilter, WithDisabled, state ?? new TableState());
         _totalItems = _data.TotalItems;
 
         IsRefreshing = false;
@@ -193,6 +196,7 @@
         DateFromFilter = null;
         DateToFilter = null;
         ProductTypeFilter = null;
+        ProductCategoryFilter = null;
 
         await Filter();
     }
