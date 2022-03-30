@@ -8,7 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="Autofac" Version="6.3.0" />
-      <PackageReference Include="MudBlazor" Version="6.0.8" />
+      <PackageReference Include="MudBlazor" Version="6.0.9" />
       <PackageReference Include="MyJetEducation.Service.Core.Client" Version="1.0.33" />
       <PackageReference Include="MyJetEducation.Service.EducationProgress.Client" Version="1.0.22" />
       <PackageReference Include="MyJetEducation.Service.EducationRetry.Client" Version="1.0.7" />
@@ -24,7 +24,7 @@
       <PackageReference Include="System.ServiceModel.Primitives" Version="4.9.0" />
       <PackageReference Include="MyJetEducation.Service.Education" Version="1.0.2" />
       <PackageReference Include="MyJetEducation.Service.Grpc" Version="1.0.7" />
-      <PackageReference Include="MyJetEducation.Service.MarketProduct.Client" Version="1.0.1" />
+      <PackageReference Include="MyJetEducation.Service.MarketProduct.Client" Version="1.0.2" />
   </ItemGroup>
 
     <ItemGroup>
