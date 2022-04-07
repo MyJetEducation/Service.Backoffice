@@ -2,7 +2,7 @@ name: Release Service
 
 on:
   push:
-    tags: "2.*"
+    tags: "2.*.*"
 
 jobs:
   build:
@@ -46,7 +46,7 @@ jobs:
       uses: docker/build-push-action@v1
       with:
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        password: ${{ secrets.UAT_GIT_TOKEN }}
         path: ./publish-api
 #        registry: docker.pkg.github.com
         registry: ghcr.io
