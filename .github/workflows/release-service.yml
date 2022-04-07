@@ -72,7 +72,7 @@ jobs:
         ref: uat
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: |
-        pattern=service.backoffice*:.*$
+        pattern=service.backoffice.*:.*$
         imagename=service.backoffice:${GITHUB_REF#refs/tags/}
         reg=$"s/${pattern}/${imagename}/g"
         echo $reg
