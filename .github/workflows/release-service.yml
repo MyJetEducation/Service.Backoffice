@@ -57,7 +57,7 @@ jobs:
         path: ./publish-api
 #        registry: docker.pkg.github.com
         registry: ghcr.io
-        repository: ${{ secrets.ORG_NAME }}/service.backoffice/service.backoffice
+        repository: ${{ secrets.ORG_NAME }}/service.backoffice
         tag_with_ref: true
         build_args: app_version=service.backoffice:${{ steps.extract_branch.outputs.branch }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
 
@@ -73,7 +73,7 @@ jobs:
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: |
         pattern=service.backoffice.*:.*$
-        imagename=service.backoffice/service.backoffice:${GITHUB_REF#refs/tags/}
+        imagename=service.backoffice:${GITHUB_REF#refs/tags/}
         reg=$"s/${pattern}/${imagename}/g"
         echo $reg
         find . -type f -name "deployment.*" -print0 -exec sed -i -r $reg {} \;
