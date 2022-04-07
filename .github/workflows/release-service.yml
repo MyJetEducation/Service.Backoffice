@@ -15,7 +15,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.*
-        source-url: https://nuget.pkg.github.com/myjeteducation/index.json
 
     - name: Get current time
       uses: MyJetTools/get-current-time@v2
@@ -25,22 +24,30 @@ jobs:
         utcOffset: "+00:00"
 
     - name: Build
-      run: dotnet build --configuration Release /p:AssemblyVersion=${GITHUB_REF#refs/tags/}
+      run: dotnet build --configuration Release /p:AssemblyVersion=0.0.${{ github.run_number }}
     - name: Test
       run: dotnet test --no-build --configuration Release
     - name: ls
       run: ls
 
     - name: Publish Service
-      run: dotnet publish ./src/Service.Backoffice/Service.Backoffice.csproj --configuration Release /p:AssemblyVersion=${GITHUB_REF#refs/tags/} --output ./publish-api
+      run: dotnet publish --no-build ./src/Service.Backoffice.Blazor/Service.Backoffice.Blazor.csproj --configuration Release --output ./publish-api
 
     - name: Check Service dir
       run: ls ./publish-api
 
-    - name: Extract branch name
-      shell: bash
-      run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/tags/})"
-      id: extract_branch
+    - name: Publish image
+      uses: docker/build-push-action@v1
+      with:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        path: ./publish-api
+#        registry: docker.pkg.github.com
+        registry: ghcr.io
+        repository: ${{ secrets.ORG_NAME }}/service.backoffice/service.backoffice
+        tags: latest
+        build_args: app_version=service.backoffice:${{ steps.extract_branch.outputs.branch }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
+
 
     - name: Publish image
       uses: docker/build-push-action@v1
