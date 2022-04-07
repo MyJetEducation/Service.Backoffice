@@ -72,12 +72,12 @@ jobs:
         ref: uat
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: |
-        pattern=service.backoffice.*:.*$
+        pattern=service.backoffice:.*$
         imagename=service.backoffice:${GITHUB_REF#refs/tags/}
         reg=$"s/${pattern}/${imagename}/g"
         echo $reg
         find . -type f -name "deployment.*" -print0 -exec sed -i -r $reg {} \;
         git config user.name github-actions
         git config user.email github-actions@github.com
-        git commit -a -m "Update version of service myjetwallet.service.backoffice"
+        git commit -a -m "Update version of service myjeteducation.service.backoffice"
         git push
