@@ -44,19 +44,6 @@ jobs:
         path: ./publish-api
 #        registry: docker.pkg.github.com
         registry: ghcr.io
-        repository: ${{ secrets.ORG_NAME }}/service.backoffice/service.backoffice
-        tags: latest
-        build_args: app_version=service.backoffice:${{ steps.extract_branch.outputs.branch }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
-
-
-    - name: Publish image
-      uses: docker/build-push-action@v1
-      with:
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-        path: ./publish-api
-#        registry: docker.pkg.github.com
-        registry: ghcr.io
         repository: ${{ secrets.ORG_NAME }}/service.backoffice
         tag_with_ref: true
         build_args: app_version=service.backoffice:${{ steps.extract_branch.outputs.branch }},app_compilation_date=${{ steps.current-time.outputs.formattedTime }}
