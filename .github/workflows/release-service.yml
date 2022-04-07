@@ -46,7 +46,7 @@ jobs:
       uses: docker/build-push-action@v1
       with:
         username: ${{ github.actor }}
-        password: ${{ secrets.UAT_GIT_TOKEN }}
+        password: ${{ secrets.GITHUB_TOKEN }}
         path: ./publish-api
 #        registry: docker.pkg.github.com
         registry: ghcr.io
