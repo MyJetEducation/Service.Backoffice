@@ -73,7 +73,7 @@ jobs:
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: |
         pattern=service.backoffice:.*$
-        imagename=service.backoffice:${GITHUB_REF#refs/tags/}
+        imagename=service.backoffice*:${GITHUB_REF#refs/tags/}
         reg=$"s/${pattern}/${imagename}/g"
         echo $reg
         find . -type f -name "deployment.*" -print0 -exec sed -i -r $reg {} \;
