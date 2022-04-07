@@ -5,13 +5,12 @@ using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Structure;
 using Service.EducationProgress.Domain.Models;
+using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
 using Service.Grpc;
 using Service.KeyValue.Grpc;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
-using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 using KeyValueGetKeysGrpcRequest = Service.KeyValue.Grpc.Models.GetKeysGrpcRequest;
 using KeyValueItemsGetGrpcRequest = Service.KeyValue.Grpc.Models.ItemsGetGrpcRequest;
@@ -22,18 +21,15 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public class EducationProgressDataService : IEducationProgressDataService
 	{
-		private readonly EducationProgress.Grpc.IEducationProgressService _educationProgressService;
-		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
+		private readonly IEducationProgressService _educationProgressService;
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 		private readonly IKeyValueService _keyValueService;
 
-		public EducationProgressDataService(EducationProgress.Grpc.IEducationProgressService educationProgressService,
-			IGrpcServiceProxy<IUserInfoService> userInfoService,
+		public EducationProgressDataService(IEducationProgressService educationProgressService,
 			IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService,
 			IKeyValueService keyValueService)
 		{
 			_educationProgressService = educationProgressService;
-			_userInfoService = userInfoService;
 			_serverKeyValueService = serverKeyValueService;
 			_keyValueService = keyValueService;
 		}
@@ -43,7 +39,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new EducationProgressDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new EducationProgressDataViewModel($"No user found by email {email}");
 
@@ -55,7 +51,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new EducationProgressDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new EducationProgressDataViewModel($"No user found by email {email}");
 
@@ -73,7 +69,7 @@ namespace Service.Backoffice.Blazor.Services
 			return await GetProgressByUser(userId);
 		}
 
-		public async ValueTask<EducationProgressDataViewModel> GetProgressByUser(Guid? userId)
+		public async ValueTask<EducationProgressDataViewModel> GetProgressByUser(string userId)
 		{
 			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
@@ -100,7 +96,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return;
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return;
 
@@ -132,13 +128,13 @@ namespace Service.Backoffice.Blazor.Services
 				await ClearServerKeyValues(userId, keysList);
 		}
 
-		private async Task ClearServerKeyValues(Guid? userId, IEnumerable<string> keys) => await _serverKeyValueService.Service.Delete(new ItemsDeleteGrpcRequest
+		private async Task ClearServerKeyValues(string userId, IEnumerable<string> keys) => await _serverKeyValueService.Service.Delete(new ItemsDeleteGrpcRequest
 		{
 			UserId = userId,
 			Keys = keys.ToArray()
 		});
 
-		private async Task ClearUiProgress(Guid? userId)
+		private async Task ClearUiProgress(string userId)
 		{
 			string[] keys = (await _keyValueService.GetKeys(new KeyValueGetKeysGrpcRequest
 			{
@@ -168,22 +164,20 @@ namespace Service.Backoffice.Blazor.Services
 			});
 		}
 
-		private async ValueTask<Guid?> GetUserId(string email)
+		private async ValueTask<string> GetUserId(string email)
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
-
-			return userInfoResponse?.UserInfo?.UserId;
+			return null;
 		}
 
 		public async ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string email, EducationTutorial tutorial, int unit, int task, DateTime? date)
 		{
 			if (email.IsNullOrWhiteSpace())
 				return new EducationProgressChangeDateDataViewModel("Please enter user email");
-			
+
 			if (date == null)
 				return new EducationProgressChangeDateDataViewModel("Date is not valid");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new EducationProgressChangeDateDataViewModel($"No user found by email {email}");
 

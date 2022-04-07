@@ -17,23 +17,14 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.PostgresConnectionString")]
         public string PostgresConnectionString { get; set; }
 
-        [YamlProperty("Backoffice.UserAccountServiceUrl")]
-        public string UserAccountServiceUrl { get; set; }
-
         [YamlProperty("Backoffice.KeyValueServiceUrl")]
         public string KeyValueServiceUrl { get; set; }
-
-        [YamlProperty("Backoffice.UserInfoCrudServiceUrl")]
-        public string UserInfoCrudServiceUrl { get; set; }
 
         [YamlProperty("Backoffice.EducationProgressServiceUrl")]
         public string EducationProgressServiceUrl { get; set; }
 
         [YamlProperty("Backoffice.ServerKeyValueServiceUrl")]
         public string ServerKeyValueServiceUrl { get; set; }
-
-        [YamlProperty("Backoffice.TokenRateServiceUrl")]
-        public string TokenRateServiceUrl { get; set; }
 
         [YamlProperty("Backoffice.UserTokenAccountServiceUrl")]
         public string UserTokenAccountServiceUrl { get; set; }

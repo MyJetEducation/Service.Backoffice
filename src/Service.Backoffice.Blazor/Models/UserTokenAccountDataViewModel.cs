@@ -10,7 +10,7 @@
 		{
 		}
 
-		public UidParamValue[] UserFilter { get; set; }
+		public ParamValue[] UserFilter { get; set; }
 		
 		public int TotalItems { get; set; }
 
