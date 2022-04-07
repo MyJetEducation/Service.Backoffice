@@ -68,7 +68,7 @@ jobs:
     - name: get uat kube yamls
       uses: actions/checkout@v2
       with:
-        repository: MyJetEducation/kubernates-infrastructure
+        repository: MyJetEducation/kubernetes-infrastructure
         ref: uat
         token: ${{ secrets.UAT_GIT_TOKEN }}
     - run: |
