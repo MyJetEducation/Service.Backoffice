@@ -37,12 +37,12 @@
               GroupFooterClass="mb-4"
               @ref="_table">
         <ToolBarContent>
-            <MudSelect Label="User" T="UidParamValue" Placeholder="User" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@UserFilter" Text="@UserFilter?.Name" Class="mr-5">
+            <MudSelect Label="User" T="ParamValue" Placeholder="User" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@UserFilter" Text="@UserFilter?.Value" Class="mr-5">
                 @if (_data?.UserFilter != null)
                 {
-                    @foreach (UidParamValue item in _data.UserFilter)
+                    @foreach (ParamValue item in _data.UserFilter)
                     {
-                        <MudSelectItem Value="@item">@item.Name</MudSelectItem>
+                        <MudSelectItem Value="@item">@item.Value</MudSelectItem>
                     }
                 }
             </MudSelect>
@@ -155,7 +155,7 @@
     private int _totalItems;
     private bool IsRefreshing { get; set; } = false;
 
-    private UidParamValue UserFilter { get; set; }
+    private ParamValue UserFilter { get; set; }
     private DateTime? DateFromFilter { get; set; }
     private DateTime? DateToFilter { get; set; }
     private int? MovementFilter { get; set; }
@@ -175,7 +175,7 @@
         IsRefreshing = true;
         StateHasChanged();
 
-        _data = await _userTokenAccountDataService.GetOperations(UserFilter?.Id, DateFromFilter, DateToFilter, MovementFilter, SourceFilter, ProductTypeFilter, state ?? new TableState());
+        _data = await _userTokenAccountDataService.GetOperations(UserFilter?.Param, DateFromFilter, DateToFilter, MovementFilter, SourceFilter, ProductTypeFilter, state ?? new TableState());
         _totalItems = _data.TotalItems;
 
         IsRefreshing = false;

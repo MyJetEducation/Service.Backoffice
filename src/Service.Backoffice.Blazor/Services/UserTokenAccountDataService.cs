@@ -1,10 +1,10 @@
 ﻿using MudBlazor;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Service.Backoffice.Blazor.Models;
 using Service.Core.Client.Extensions;
 using Service.Grpc;
 using Service.MarketProduct.Domain.Models;
-using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
 using Service.UserTokenAccount.Domain.Models;
 using Service.UserTokenAccount.Grpc;
 using Service.UserTokenAccount.Grpc.Models;
@@ -14,15 +14,13 @@ namespace Service.Backoffice.Blazor.Services
 	public class UserTokenAccountDataService : IUserTokenAccountDataService
 	{
 		private readonly IGrpcServiceProxy<IUserTokenAccountService> _userTokenAccountService;
-		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 
-		public UserTokenAccountDataService(IGrpcServiceProxy<IUserTokenAccountService> userTokenAccountService, IGrpcServiceProxy<IUserInfoService> userInfoService)
+		public UserTokenAccountDataService(IGrpcServiceProxy<IUserTokenAccountService> userTokenAccountService)
 		{
 			_userTokenAccountService = userTokenAccountService;
-			_userInfoService = userInfoService;
 		}
 
-		public async ValueTask<UserTokenAccountDataViewModel> GetOperations(Guid? userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState)
+		public async ValueTask<UserTokenAccountDataViewModel> GetOperations(string userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState)
 		{
 			OperationsGrpcResponse operationsResposne = await _userTokenAccountService.Service.GetOperationsAsync(new GetOperationsGrpcRequest
 			{
@@ -45,11 +43,10 @@ namespace Service.Backoffice.Blazor.Services
 
 			foreach (OperationGrpcModel operation in pageItems)
 			{
-				Guid? operationUserId = operation.UserId;
+				string operationUserId = operation.UserId;
 
 				AccountGrpcResponse accountResponse = await _userTokenAccountService.Service.GetAccountAsync(new GetAccountGrpcRequest {UserId = operationUserId});
 
-				UserInfoResponse userInfo = await _userInfoService.Service.GetUserInfoByIdAsync(new UserInfoRequest {UserId = operationUserId});
 				bool isIncome = operation.Movement == TokenOperationMovement.Income;
 				string sign = isIncome ? "+" : "-";
 
@@ -61,17 +58,17 @@ namespace Service.Backoffice.Blazor.Services
 					ProductType = operation.ProductType.ToString(),
 					Source = operation.Source.ToString(),
 					Value = $"{sign} {operation.Value:0.00}",
-					Info = ServiceHelper.FormatJsonValue(operation.Info),
-					UserName = userInfo?.UserInfo?.UserName,
+					Info = FormatJsonValue(operation.Info),
+					UserName = await GetUserEmail(operationUserId),
 					IsIncome = isIncome,
 					Total = accountResponse?.Value
 				});
 			}
 
-			UidParamValue[] paramValues = viewModels
-				.Select(p => new UidParamValue(p.UserId, p.UserName))
-				.DistinctBy(p => p.Id)
-				.OrderBy(p => p.Name)
+			ParamValue[] paramValues = viewModels
+				.Select(p => new ParamValue(p.UserId, p.UserName))
+				.DistinctBy(p => p.Param)
+				.OrderBy(p => p.Value)
 				.ToArray();
 
 			return new UserTokenAccountDataViewModel
@@ -80,6 +77,15 @@ namespace Service.Backoffice.Blazor.Services
 				UserFilter = paramValues,
 				TotalItems = allItems.Count()
 			};
+		}
+
+		private static string FormatJsonValue(string value) => value.IsNullOrWhiteSpace()
+			? string.Empty
+			: JToken.Parse(value).ToString(Formatting.Indented);
+
+		private async ValueTask<string> GetUserEmail(string userId)
+		{
+			return null;
 		}
 
 		private static Func<OperationGrpcModel, object> GetSortFunc(string sortLabel) =>

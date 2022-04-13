@@ -1,21 +1,16 @@
 ﻿using Service.Backoffice.Blazor.Models;
 using Service.Core.Client.Extensions;
-using Service.Grpc;
 using Service.KeyValue.Grpc;
 using Service.KeyValue.Grpc.Models;
-using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
 	public class KeyValueDataService : IKeyValueDataService
 	{
-		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IKeyValueService _keyValueService;
 
-		public KeyValueDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IKeyValueService keyValueService)
+		public KeyValueDataService(IKeyValueService keyValueService)
 		{
-			_userInfoService = userInfoService;
 			_keyValueService = keyValueService;
 		}
 
@@ -24,7 +19,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new KeyValueDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new KeyValueDataViewModel($"No user found by email {email}");
 
@@ -44,11 +39,9 @@ namespace Service.Backoffice.Blazor.Services
 			};
 		}
 
-		private async ValueTask<Guid?> GetUserId(string email)
+		private async ValueTask<string> GetUserId(string email)
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest {UserName = email});
-
-			return userInfoResponse?.UserInfo?.UserId;
+			return null;
 		}
 	}
 }

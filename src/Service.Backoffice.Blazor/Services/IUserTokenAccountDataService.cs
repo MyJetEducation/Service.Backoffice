@@ -5,6 +5,6 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public interface IUserTokenAccountDataService
 	{
-		ValueTask<UserTokenAccountDataViewModel> GetOperations(Guid? userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState);
+		ValueTask<UserTokenAccountDataViewModel> GetOperations(string userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState);
 	}
 }

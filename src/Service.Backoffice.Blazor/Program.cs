@@ -14,23 +14,21 @@ namespace Service.Backoffice.Blazor
 		public static string ApplicationTitle = $"{Configuration.ProductName} Backoffice";
 
 		public static SettingsModel Settings { get; private set; }
+		public static Func<T> ReloadedSettings<T>(Func<SettingsModel, T> getter) => () => getter.Invoke(GetSettings());
+		private static SettingsModel GetSettings() => SettingsReader.GetSettings<SettingsModel>(ProgramHelper.SettingsFileName);
 
 		public static ILoggerFactory LogFactory { get; private set; }
 
 		public static void Main(string[] args)
 		{
 			Console.Title = "MyJetEducation Service.Backoffice";
-			Settings = LoadSettings();
+			Settings = GetSettings();
 
 			using ILoggerFactory loggerFactory = LogConfigurator.ConfigureElk(Configuration.ProductName, Settings.SeqServiceUrl, Settings.ElkLogs);
 			LogFactory = loggerFactory;
 
 			CreateHostBuilder(loggerFactory, args);
 		}
-
-		private static SettingsModel LoadSettings() => SettingsReader.GetSettings<SettingsModel>(ProgramHelper.SettingsFileName);
-
-		public static Func<T> ReloadedSettings<T>(Func<SettingsModel, T> getter) => () => getter.Invoke(LoadSettings());
 
 		public static void CreateHostBuilder(ILoggerFactory loggerFactory, string[] args)
 		{

@@ -6,19 +6,15 @@ using Service.EducationRetry.Domain.Models;
 using Service.Grpc;
 using Service.ServerKeyValue.Grpc;
 using Service.ServerKeyValue.Grpc.Models;
-using Service.UserInfo.Crud.Grpc;
-using Service.UserInfo.Crud.Grpc.Models;
 
 namespace Service.Backoffice.Blazor.Services
 {
 	public class RetryDataService : IRetryDataService
 	{
-		private readonly IGrpcServiceProxy<IUserInfoService> _userInfoService;
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
-		public RetryDataService(IGrpcServiceProxy<IUserInfoService> userInfoService, IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
+		public RetryDataService(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
 		{
-			_userInfoService = userInfoService;
 			_serverKeyValueService = serverKeyValueService;
 		}
 
@@ -27,7 +23,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new RetryDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new RetryDataViewModel($"No user found by email {email}");
 
@@ -41,7 +37,7 @@ namespace Service.Backoffice.Blazor.Services
 			};
 		}
 
-		private async ValueTask<T> GetServerKeyValueObject<T>(Guid? userId, string key) where T : class
+		private async ValueTask<T> GetServerKeyValueObject<T>(string userId, string key) where T : class
 		{
 			string value = (await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
 			{
@@ -60,7 +56,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new RetryDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new RetryDataViewModel($"No user found by email {email}");
 
@@ -91,7 +87,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (email.IsNullOrWhiteSpace())
 				return new RetryDataViewModel("Please enter user email");
 
-			Guid? userId = await GetUserId(email);
+			string userId = await GetUserId(email);
 			if (userId == null)
 				return new RetryDataViewModel($"No user found by email {email}");
 
@@ -114,11 +110,9 @@ namespace Service.Backoffice.Blazor.Services
 			return await GetData(email);
 		}
 
-		private async ValueTask<Guid?> GetUserId(string email)
+		private async ValueTask<string> GetUserId(string email)
 		{
-			UserInfoResponse userInfoResponse = await _userInfoService.Service.GetUserInfoByLoginAsync(new UserInfoAuthRequest { UserName = email });
-
-			return userInfoResponse?.UserInfo?.UserId;
+			return null;
 		}
 	}
 }
