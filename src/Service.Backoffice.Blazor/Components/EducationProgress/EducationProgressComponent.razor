@@ -8,6 +8,7 @@
 @using Service.EducationProgress.Domain.Models
 
 @inject IEducationProgressDataService _educationProgressService
+@inject IUserResolver _userResolver
 
 @if (IsShowChangeTaskDateModal)
 {
@@ -36,183 +37,185 @@
     </div>
 }
 
-@if (_data is {ErrorText: {}})
-{
-    <div class="alert alert-danger" role="alert">
-        @_data.ErrorText
-    </div>
-}
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="5">
+        <MudAutocomplete Dense="true" Label="User" Immediate="false" Clearable="true" MinCharacters="3" Variant="Variant.Outlined" ResetValueOnEmptyText="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                         @ref="_userList"
+                         T="ParamValue"
+                         SearchFunc="@(GetUsers)"
+                         ValueChanged="@(pv => Filter(pv, true))"
+                         ToStringFunc="@(pv => pv?.Value)"/>
+    </MudItem>
+    <MudItem xs="1">
+        @if (IsRefreshing)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+        }
+    </MudItem>
+    @if (_data is {ErrorText: {}})
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Error">@(_data.ErrorText)</MudAlert>
+        </MudItem>
+    }
 
-<div class="container min-width">
-    <div class="input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text">User email</span>
-        </div>
-        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
-        <div class="input-group-append">
-            <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
-                <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                Search
-            </button>
-        </div>
-    </div>
-</div>
-
-@if (_data != null && _data.ErrorText.IsNullOrEmpty())
-{
-    <div class="container small-width">
-        <div class="card">
-            <div class="card-header">
-                Reset progress
+    @if (_data != null && _data.ErrorText.IsNullOrEmpty())
+    {
+        <MudItem xs="6">
+            <div class="card">
+                <div class="card-header">
+                    Reset progress
+                </div>
+                <div class="card-body">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="progress" @bind="ClearProgress">
+                        <label class="form-check-label" for="inlineCheckbox1">Progress</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="progress" @bind="ClearUiProgress">
+                        <label class="form-check-label" for="inlineCheckbox2">UI progress</label>
+                    </div>
+                    <br/>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="achievements" @bind="ClearAchievements">
+                        <label class="form-check-label" for="inlineCheckbox3">Achievements</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox4" value="stats" @bind="ClearStatuses">
+                        <label class="form-check-label" for="inlineCheckbox4">Statuses</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox5" value="habits" @bind="ClearHabits">
+                        <label class="form-check-label" for="inlineCheckbox5">Habits</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox6" value="skills" @bind="ClearSkills">
+                        <label class="form-check-label" for="inlineCheckbox6">Skills</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox7" value="knowledge" @bind="ClearKnowledge">
+                        <label class="form-check-label" for="inlineCheckbox7">Knowledge</label>
+                    </div>
+                    <br/>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox8" value="knowledge" @bind="ClearUserTime">
+                        <label class="form-check-label" for="inlineCheckbox8">Service time</label>
+                    </div>
+                    <br/>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="inlineCheckbox9" value="knowledge" @bind="ClearRetry">
+                        <label class="form-check-label" for="inlineCheckbox9">Retry info</label>
+                    </div>
+                    <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="ClearAll" disabled="@IsResettings">
+                        <span class="spinner-border spinner-border-sm" style="display: @(IsResettings ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                        Reset
+                    </button>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="progress" @bind="ClearProgress">
-                    <label class="form-check-label" for="inlineCheckbox1">Progress</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="progress" @bind="ClearUiProgress">
-                    <label class="form-check-label" for="inlineCheckbox2">UI progress</label>
-                </div>
-                <br/>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="achievements" @bind="ClearAchievements">
-                    <label class="form-check-label" for="inlineCheckbox3">Achievements</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox4" value="stats" @bind="ClearStatuses">
-                    <label class="form-check-label" for="inlineCheckbox4">Statuses</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox5" value="habits" @bind="ClearHabits">
-                    <label class="form-check-label" for="inlineCheckbox5">Habits</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox6" value="skills" @bind="ClearSkills">
-                    <label class="form-check-label" for="inlineCheckbox6">Skills</label>
-                </div>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox7" value="knowledge" @bind="ClearKnowledge">
-                    <label class="form-check-label" for="inlineCheckbox7">Knowledge</label>
-                </div>
-                <br/>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox8" value="knowledge" @bind="ClearUserTime">
-                    <label class="form-check-label" for="inlineCheckbox8">Service time</label>
-                </div>
-                <br/>
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" id="inlineCheckbox9" value="knowledge" @bind="ClearRetry">
-                    <label class="form-check-label" for="inlineCheckbox9">Retry info</label>
-                </div>
-                <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="ClearAll" disabled="@IsResettings">
-                    <span class="spinner-border spinner-border-sm" style="display: @(IsResettings ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                    Reset
-                </button>
-            </div>
-        </div>
-    </div>
+        </MudItem>
 
-    <div class="container">
-        <div class="card">
-            <div class="card-header">
-                Progress
-                <span class="badge badge-secondary">test: @TestScore%</span>
-                <span class="badge badge-secondary">score: @TaskScore%</span>
-            </div>
-            <div class="card-body">
+        <MudItem xs="12">
+            <div class="card">
+                <div class="card-header">
+                    Progress
+                    <span class="badge badge-secondary">test: @TestScore%</span>
+                    <span class="badge badge-secondary">score: @TaskScore%</span>
+                </div>
+                <div class="card-body">
 
-                @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
-                @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
+                    @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
+                    @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
 
-                @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
-                {
-                    <table class="table table-bordered table-sm progress-table">
-                        <thead class="thead-dark">
+                    @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
+                    {
+                        <table class="table table-bordered table-sm progress-table">
+                            <thead class="thead-dark">
 
-                        <tr>
-                            <th class="progress-table-head-td">
-                                @Enum.GetName(tutorialGroups.Key)
-                                <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
-                            </th>
-
-                            @for (var i = 1; i <= tasksCount; i++)
-                            {
-                                <th class="progress-table-value-td">Task @i</th>
-                            }
-                        </tr>
-
-                        </thead>
-                        <tbody>
-
-                        @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
-
-                        @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
-                        {
                             <tr>
-                                <td class="table-primary progress-table-head-td">
-                                    Unit @unitGroup.Key
-                                    <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
-                                </td>
+                                <th class="progress-table-head-td">
+                                    @Enum.GetName(tutorialGroups.Key)
+                                    <span @onclick="@(_ => Clear(tutorialGroups.Key, null, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                </th>
 
-                                @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
-
-                                @foreach (EducationProgressDto task in taskInfo)
+                                @for (var i = 1; i <= tasksCount; i++)
                                 {
-                                    int? value = task.Value;
-                                    var elseValue = "";
-                                    string dateStr = null;
+                                    <th class="progress-table-value-td">Task @i</th>
+                                }
+                            </tr>
 
-                                    int taskId = task.Task;
-                                    EducationTutorial tutorialId = task.Tutorial;
-                                    int unitId = task.Unit;
-                                    DateTime? taskDate = task.Date;
+                            </thead>
+                            <tbody>
 
-                                    if (EducationHelper.GetTask(tutorialGroups.Key, unitGroup.Key, taskId).TaskType == EducationTaskType.Case
-                                        && task.HasProgress
-                                        && value != Progress.MaxProgress)
+                            @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
+
+                            @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
+                            {
+                                <tr>
+                                    <td class="table-primary progress-table-head-td">
+                                        Unit @unitGroup.Key
+                                        <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                    </td>
+
+                                    @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
+
+                                    @foreach (EducationProgressDto task in taskInfo)
                                     {
-                                        value = Progress.MaxProgress;
-                                        elseValue = $" ({task.Value.ToString()})";
+                                        int? value = task.Value;
+                                        var elseValue = "";
+                                        string dateStr = null;
+
+                                        int taskId = task.Task;
+                                        EducationTutorial tutorialId = task.Tutorial;
+                                        int unitId = task.Unit;
+                                        DateTime? taskDate = task.Date;
+
+                                        if (EducationHelper.GetTask(tutorialGroups.Key, unitGroup.Key, taskId).TaskType == EducationTaskType.Case
+                                            && task.HasProgress
+                                            && value != Progress.MaxProgress)
+                                        {
+                                            value = Progress.MaxProgress;
+                                            elseValue = $" ({task.Value.ToString()})";
+                                        }
+
+                                        string tdclass = value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
+
+                                        if (task.HasProgress)
+                                            dateStr = $"{taskDate:dd/MM/yyyy h:mm}";
+
+                                        <td class="@tdclass progress-table-value-td">
+                                            @value@elseValue
+
+                                            @if (task.HasProgress)
+                                            {
+                                                <span @onclick="@(_ => Clear(tutorialId, unitId, taskId))" class="oi oi-x del-btn" aria-hidden="true"></span>
+                                            }
+
+                                            @if (dateStr != null)
+                                            {
+                                                <div class="task-date" @onclick="@(_ => ModalShow(tutorialId, unitId, taskId, taskDate))">@dateStr</div>
+                                            }
+                                        </td>
                                     }
 
-                                    string tdclass = value switch {null => "",< Progress.OkProgress => "table-danger",_ => "table-success"};
+                                </tr>
+                            }
 
-                                    if (task.HasProgress)
-                                        dateStr = $"{taskDate:dd/MM/yyyy h:mm}";
+                            </tbody>
+                        </table>
+                    }
 
-                                    <td class="@tdclass progress-table-value-td">
-                                        @value@elseValue
-
-                                        @if (task.HasProgress)
-                                        {
-                                            <span @onclick="@(_ => Clear(tutorialId, unitId, taskId))" class="oi oi-x del-btn" aria-hidden="true"></span>
-                                        }
-
-                                        @if (dateStr != null)
-                                        {
-                                            <div class="task-date" @onclick="@(_ => ModalShow(tutorialId, unitId, taskId, taskDate))">@dateStr</div>
-                                        }
-                                    </td>
-                                }
-
-                            </tr>
-                        }
-
-                        </tbody>
-                    </table>
-                }
-
+                </div>
             </div>
-        </div>
-    </div>
-}
+        </MudItem>
+    }
+</MudGrid>
 
 @code {
     private EducationProgressDataViewModel _data;
-    private string EmailFilter { get; set; }
     private int TestScore { get; set; } = 0;
     private int TaskScore { get; set; } = 0;
+    private ParamValue User { get; set; }
+    private MudAutocomplete<ParamValue> _userList;
 
     private bool IsResettings { get; set; } = false;
     private bool IsRefreshing { get; set; } = false;
@@ -236,11 +239,26 @@
     private bool ClearUserTime { get; set; }
     private bool ClearRetry { get; set; }
 
-    private async Task Filter()
+    private async Task<IEnumerable<ParamValue>> GetUsers(string text) => text.IsNullOrWhiteSpace()
+        ? Array.Empty<ParamValue>()
+        : await _userResolver.GetUsers(text);
+
+    private async Task Filter(ParamValue user, bool initial = false)
     {
+        if (initial)
+            await _userList.ToggleMenu();
+
+        if (user == null)
+        {
+            _data = null;
+            return;
+        }
+
+        User = user;
+
         IsRefreshing = true;
 
-        _data = await _educationProgressService.GetProgress(EmailFilter);
+        _data = await _educationProgressService.GetProgress(user.Param);
         TestScore = _data.TestScore;
         TaskScore = _data.TaskScore;
 
@@ -251,7 +269,7 @@
     {
         IsRefreshing = true;
 
-        _data = await _educationProgressService.ClearProgress(EmailFilter, tutorial, unit, task);
+        _data = await _educationProgressService.ClearProgress(User.Param, tutorial, unit, task);
         TestScore = _data.TestScore;
         TaskScore = _data.TaskScore;
 
@@ -262,7 +280,7 @@
     {
         IsResettings = true;
 
-        await _educationProgressService.ClearAll(EmailFilter, new ClearProgressFlags
+        await _educationProgressService.ClearAll(User.Param, new ClearProgressFlags
         {
             Progress = ClearProgress,
             UiProgress = ClearUiProgress,
@@ -277,13 +295,7 @@
 
         IsResettings = false;
 
-        await Filter();
-    }
-
-    public async Task EmailEnter(KeyboardEventArgs e)
-    {
-        if (e.Code is "Enter" or "NumpadEnter")
-            await Filter();
+        await Filter(User);
     }
 
     private void ModalShow(EducationTutorial tutorial, int unit, int task, DateTime? date)
@@ -298,11 +310,11 @@
     }
 
     private void ModalCancel() => IsShowChangeTaskDateModal = false;
-    
+
     private async void ModalOk()
     {
         IsChangingTaskDate = true;
-        EducationProgressChangeDateDataViewModel saved = await _educationProgressService.ChangeTaskDate(EmailFilter, ChangeTutorial, ChangeUnit, ChangeTask, ChangeDate);
+        EducationProgressChangeDateDataViewModel saved = await _educationProgressService.ChangeTaskDate(User.Param, ChangeTutorial, ChangeUnit, ChangeTask, ChangeDate);
         IsChangingTaskDate = false;
 
         if (!saved.Result)
@@ -313,9 +325,11 @@
         else
         {
             ModalCancel();
-            await Filter();
+            await Filter(User);
         }
 
         StateHasChanged();
     }
+
 }
+

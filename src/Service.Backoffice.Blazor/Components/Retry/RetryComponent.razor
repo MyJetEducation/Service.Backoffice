@@ -4,71 +4,77 @@
 @using Service.Core.Client.Extensions
 
 @inject IRetryDataService _retryService
+@inject IUserResolver _userResolver
 
-@if (_data is {ErrorText: {}})
-{
-    <div class="alert alert-danger" role="alert">
-        @_data.ErrorText
-    </div>
-}
-
-<div class="container min-width">
-    <div class="input-group">
-        <div class="input-group-prepend">
-            <span class="input-group-text">User email</span>
-        </div>
-        <input type="text" class="form-control" id="emailValue" aria-describedby="basic-addon3" @bind="EmailFilter" @onkeydown="@EmailEnter">
-        <div class="input-group-append">
-            <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
-                <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                Search
-            </button>
-        </div>
-    </div>
-</div>
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="5">
+        <MudAutocomplete Dense="true" Label="User" Immediate="false" Clearable="true" MinCharacters="3" Variant="Variant.Outlined" ResetValueOnEmptyText="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+                         @ref="_userList"
+                         T="ParamValue"
+                         SearchFunc="@(GetUsers)"
+                         ValueChanged="@(Filter)"
+                         ToStringFunc="@(pv => pv?.Value)">
+        </MudAutocomplete>
+    </MudItem>
+    <MudItem xs="1">
+        @if (IsRefreshing)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+        }
+    </MudItem>
+    @if (_data is {ErrorText: {}})
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Error">@(_data.ErrorText)</MudAlert>
+        </MudItem>
+    }
+</MudGrid>
 
 @if (_data != null && _data.ErrorText.IsNullOrEmpty())
 {
-    <div class="container min-width">
-        <div class="card">
-            <div class="card-header">
-                Retry info
-            </div>
-            <div class="card-body">
+    <MudGrid Justify="Justify.FlexStart">
+        <MudItem xs="5">
+            <div class="card">
+                <div class="card-header">
+                    Retry info
+                </div>
+                <div class="card-body">
 
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon3">Retry count</span>
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">Retry count</span>
+                        </div>
+                        <input type="text" class="form-control" id="countValue" aria-describedby="basic-addon3" @bind="Count">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveCount" disabled="@IsSavingCount">
+                                <span class="spinner-border spinner-border-sm" style="display: @(IsSavingCount ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                                Save
+                            </button>
+                        </div>
                     </div>
-                    <input type="text" class="form-control" id="countValue" aria-describedby="basic-addon3" @bind="Count">
-                    <div class="input-group-append" id="button-addon4">
-                        <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveCount" disabled="@IsSavingCount">
-                            <span class="spinner-border spinner-border-sm" style="display: @(IsSavingCount ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                            Save
-                        </button>
+
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon3">Last retry date</span>
+                        </div>
+                        <input type="datetime-local" class="form-control" id="dateValue" aria-describedby="basic-addon3" @bind="LastDate">
+                        <div class="input-group-append" id="button-addon4">
+                            <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveDate" disabled="@IsSavingDate">
+                                <span class="spinner-border spinner-border-sm" style="display: @(IsSavingDate ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+                                Save
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon3">Last retry date</span>
-                    </div>
-                    <input type="datetime-local" class="form-control" id="dateValue" aria-describedby="basic-addon3" @bind="LastDate">
-                    <div class="input-group-append" id="button-addon4">
-                        <button class="btn btn-primary" style="float: right; white-space: nowrap;" type="button" @onclick="SaveDate" disabled="@IsSavingDate">
-                            <span class="spinner-border spinner-border-sm" style="display: @(IsSavingDate ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
-                            Save
-                        </button>
-                    </div>
-                </div>
             </div>
-        </div>
-    </div>
+        </MudItem>
+    </MudGrid>
 }
 
 @code {
     private RetryDataViewModel _data;
-    private string EmailFilter { get; set; }
+    private MudAutocomplete<ParamValue> _userList;
+    private ParamValue User { get; set; }
     private int Count { get; set; }
     private DateTime? LastDate { get; set; }
 
@@ -76,11 +82,21 @@
     private bool IsSavingDate { get; set; } = false;
     private bool IsRefreshing { get; set; } = false;
 
-    private async Task Filter()
+    private async Task Filter(ParamValue user)
     {
+        await _userList.ToggleMenu();
+
+        if (user == null)
+        {
+            _data = null;
+            return;
+        }
+
+        User = user;
+
         IsRefreshing = true;
 
-        _data = await _retryService.GetData(EmailFilter);
+        _data = await _retryService.GetData(User.Param);
         Count = _data.Count;
         LastDate = _data.LastDate;
 
@@ -91,7 +107,7 @@
     {
         IsSavingCount = true;
 
-        _data = await _retryService.SetCount(EmailFilter, Count);
+        _data = await _retryService.SetCount(User.Param, Count);
         Count = _data.Count;
         LastDate = _data.LastDate;
 
@@ -102,17 +118,15 @@
     {
         IsSavingDate = true;
 
-        _data = await _retryService.SetDate(EmailFilter, LastDate);
+        _data = await _retryService.SetDate(User.Param, LastDate);
         Count = _data.Count;
         LastDate = _data.LastDate;
 
         IsSavingDate = false;
     }
 
-    public async Task EmailEnter(KeyboardEventArgs e)
-    {
-        if (e.Code is "Enter" or "NumpadEnter")
-            await Filter();
-    }
+    private async Task<IEnumerable<ParamValue>> GetUsers(string text) => text.IsNullOrWhiteSpace()
+        ? Array.Empty<ParamValue>()
+        : await _userResolver.GetUsers(text);
 
 }

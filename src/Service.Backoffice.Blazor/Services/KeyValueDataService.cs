@@ -9,39 +9,27 @@ namespace Service.Backoffice.Blazor.Services
 	{
 		private readonly IKeyValueService _keyValueService;
 
-		public KeyValueDataService(IKeyValueService keyValueService)
-		{
-			_keyValueService = keyValueService;
-		}
+		public KeyValueDataService(IKeyValueService keyValueService) => _keyValueService = keyValueService;
 
-		public async ValueTask<KeyValueDataViewModel> GetKeyValueData(string email)
+		public async ValueTask<KeyValueDataViewModel> GetKeyValueData(string userId)
 		{
-			if (email.IsNullOrWhiteSpace())
-				return new KeyValueDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new KeyValueDataViewModel($"No user found by email {email}");
+			if (userId.IsNullOrWhiteSpace())
+				return new KeyValueDataViewModel("Please select user");
 
 			KeysGrpcResponse keysResponse = await _keyValueService.GetKeys(new GetKeysGrpcRequest {UserId = userId});
 			string[] keys = keysResponse?.Keys;
 			if (keys.IsNullOrEmpty())
-				return new KeyValueDataViewModel($"No keys found by email {email}");
+				return new KeyValueDataViewModel("No keys found for user");
 
 			ItemsGrpcResponse itemsResponse = await _keyValueService.Get(new ItemsGetGrpcRequest {UserId = userId, Keys = keys});
 			KeyValueGrpcModel[] items = itemsResponse?.Items;
 			if (items.IsNullOrEmpty())
-				return new KeyValueDataViewModel($"No items found by email {email}");
+				return new KeyValueDataViewModel("No items found for user");
 
 			return new KeyValueDataViewModel
 			{
 				Items = items?.Select(model => new ParamValue(model.Key, model.Value)).ToArray()
 			};
-		}
-
-		private async ValueTask<string> GetUserId(string email)
-		{
-			return null;
 		}
 	}
 }

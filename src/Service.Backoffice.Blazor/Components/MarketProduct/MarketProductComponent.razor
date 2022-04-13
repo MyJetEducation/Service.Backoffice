@@ -8,11 +8,7 @@
 @using Service.UserTokenAccount.Grpc.Models
 
 @inject IMarketProductDataService _marketProductDataService
-@inject ISnackbar Snackbar
-
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
+@inject ISnackbar _snackbar
 
 @if (_data is {ErrorText: {}})
 {
@@ -168,7 +164,7 @@
         if (result.Saved)
             await _table.ReloadServerData();
         else
-            Snackbar.Add(result.Error);
+            _snackbar.Add(result.Error);
     }
 
     private async Task Filter()

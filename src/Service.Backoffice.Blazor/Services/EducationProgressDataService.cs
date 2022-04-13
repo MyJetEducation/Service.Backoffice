@@ -34,26 +34,14 @@ namespace Service.Backoffice.Blazor.Services
 			_keyValueService = keyValueService;
 		}
 
-		public async ValueTask<EducationProgressDataViewModel> GetProgress(string email)
+		public async ValueTask<EducationProgressDataViewModel> GetProgress(string userId) => userId.IsNullOrWhiteSpace() 
+			? new EducationProgressDataViewModel("Please select user") 
+			: await GetProgressByUser(userId);
+
+		public async ValueTask<EducationProgressDataViewModel> ClearProgress(string userId, EducationTutorial? tutorial, int? unit, int? task)
 		{
-			if (email.IsNullOrWhiteSpace())
-				return new EducationProgressDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new EducationProgressDataViewModel($"No user found by email {email}");
-
-			return await GetProgressByUser(userId);
-		}
-
-		public async ValueTask<EducationProgressDataViewModel> ClearProgress(string email, EducationTutorial? tutorial, int? unit, int? task)
-		{
-			if (email.IsNullOrWhiteSpace())
-				return new EducationProgressDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new EducationProgressDataViewModel($"No user found by email {email}");
+			if (userId.IsNullOrWhiteSpace())
+				return new EducationProgressDataViewModel("Please select user");
 
 			CommonGrpcResponse response = await _educationProgressService.InitProgressAsync(new InitEducationProgressGrpcRequest
 			{
@@ -63,10 +51,9 @@ namespace Service.Backoffice.Blazor.Services
 				Task = task
 			});
 
-			if (!response.IsSuccess)
-				return new EducationProgressDataViewModel($"Error occured while clearing progress for user {email}");
-
-			return await GetProgressByUser(userId);
+			return response.IsSuccess 
+				? await GetProgressByUser(userId) 
+				: new EducationProgressDataViewModel($"Error occured while clearing progress for user {userId}");
 		}
 
 		public async ValueTask<EducationProgressDataViewModel> GetProgressByUser(string userId)
@@ -91,17 +78,13 @@ namespace Service.Backoffice.Blazor.Services
 			};
 		}
 
-		public async ValueTask ClearAll(string email, ClearProgressFlags clear)
+		public async ValueTask ClearAll(string userId, ClearProgressFlags clear)
 		{
-			if (email.IsNullOrWhiteSpace())
-				return;
-
-			string userId = await GetUserId(email);
-			if (userId == null)
+			if (userId.IsNullOrWhiteSpace())
 				return;
 
 			if (clear.Progress)
-				await ClearProgress(email, null, null, null);
+				await ClearProgress(userId, null, null, null);
 
 			if (clear.UiProgress)
 				await ClearUiProgress(userId);
@@ -164,22 +147,13 @@ namespace Service.Backoffice.Blazor.Services
 			});
 		}
 
-		private async ValueTask<string> GetUserId(string email)
+		public async ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string userId, EducationTutorial tutorial, int unit, int task, DateTime? date)
 		{
-			return null;
-		}
-
-		public async ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string email, EducationTutorial tutorial, int unit, int task, DateTime? date)
-		{
-			if (email.IsNullOrWhiteSpace())
-				return new EducationProgressChangeDateDataViewModel("Please enter user email");
+			if (userId.IsNullOrWhiteSpace())
+				return EducationProgressChangeDateDataViewModel.Error("Please select user");
 
 			if (date == null)
-				return new EducationProgressChangeDateDataViewModel("Date is not valid");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new EducationProgressChangeDateDataViewModel($"No user found by email {email}");
+				return EducationProgressChangeDateDataViewModel.Error("Date is not valid");
 
 			string educationProgressKey = Program.Settings.ServerKeyValueKeys.EducationProgressKey;
 
@@ -190,11 +164,11 @@ namespace Service.Backoffice.Blazor.Services
 			});
 
 			if (response == null)
-				return new EducationProgressChangeDateDataViewModel($"Error occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
+				return EducationProgressChangeDateDataViewModel.Error($"Error occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {userId}");
 
 			EducationProgressDto[] dtos = JsonConvert.DeserializeObject<EducationProgressDto[]>(response.Value);
 			if (dtos == null)
-				return new EducationProgressChangeDateDataViewModel($"Error (2) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
+				return EducationProgressChangeDateDataViewModel.Error($"Error (2) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {userId}");
 
 			EducationProgressDto dto = dtos.Where(dto => dto.Tutorial == tutorial)
 				.Where(dto => dto.Unit == unit)
@@ -215,10 +189,9 @@ namespace Service.Backoffice.Blazor.Services
 				}
 			});
 
-			if (!saveResponse.IsSuccess)
-				return new EducationProgressChangeDateDataViewModel($"Error (3) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {email}");
-
-			return new EducationProgressChangeDateDataViewModel();
+			return saveResponse.IsSuccess 
+				? new EducationProgressChangeDateDataViewModel() 
+				: EducationProgressChangeDateDataViewModel.Error($"Error (3) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {userId}");
 		}
 	}
 }

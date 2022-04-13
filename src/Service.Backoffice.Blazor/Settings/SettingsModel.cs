@@ -32,6 +32,9 @@ namespace Service.Backoffice.Blazor.Settings
         [YamlProperty("Backoffice.MarketProductServiceUrl")]
         public string MarketProductServiceUrl { get; set; }
 
+        [YamlProperty("Backoffice.PersonalDataServiceUrl")]
+        public string PersonalDataServiceUrl { get; set; }
+
         [YamlProperty("Backoffice.ServerKeyValueKeys")]
         public ServerKeyValueKeysSettingsModel ServerKeyValueKeys { get; set; }
     }

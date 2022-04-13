@@ -6,15 +6,15 @@
 
 		public string ErrorMessage { get; set; }
 
-		public EducationProgressChangeDateDataViewModel(string errorMessage)
-		{
-			ErrorMessage = errorMessage;
-			Result = false;
-		}
-
 		public EducationProgressChangeDateDataViewModel()
 		{
 			Result = true;
 		}
+
+		public static EducationProgressChangeDateDataViewModel Error(string errorMessage) => new()
+		{
+			ErrorMessage = errorMessage,
+			Result = false
+		};
 	}
 }

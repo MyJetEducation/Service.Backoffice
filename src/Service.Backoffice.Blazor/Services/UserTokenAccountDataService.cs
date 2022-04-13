@@ -5,6 +5,8 @@ using Service.Backoffice.Blazor.Models;
 using Service.Core.Client.Extensions;
 using Service.Grpc;
 using Service.MarketProduct.Domain.Models;
+using Service.PersonalData.Grpc;
+using Service.PersonalData.Grpc.Contracts;
 using Service.UserTokenAccount.Domain.Models;
 using Service.UserTokenAccount.Grpc;
 using Service.UserTokenAccount.Grpc.Models;
@@ -14,10 +16,12 @@ namespace Service.Backoffice.Blazor.Services
 	public class UserTokenAccountDataService : IUserTokenAccountDataService
 	{
 		private readonly IGrpcServiceProxy<IUserTokenAccountService> _userTokenAccountService;
+		private readonly IPersonalDataServiceGrpc _personalDataServiceGrpc;
 
-		public UserTokenAccountDataService(IGrpcServiceProxy<IUserTokenAccountService> userTokenAccountService)
+		public UserTokenAccountDataService(IGrpcServiceProxy<IUserTokenAccountService> userTokenAccountService, IPersonalDataServiceGrpc personalDataServiceGrpc)
 		{
 			_userTokenAccountService = userTokenAccountService;
+			_personalDataServiceGrpc = personalDataServiceGrpc;
 		}
 
 		public async ValueTask<UserTokenAccountDataViewModel> GetOperations(string userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState)
@@ -85,7 +89,9 @@ namespace Service.Backoffice.Blazor.Services
 
 		private async ValueTask<string> GetUserEmail(string userId)
 		{
-			return null;
+			PersonalDataGrpcResponseContract response = await _personalDataServiceGrpc.GetByIdAsync(new GetByIdRequest() {Id = userId});
+
+			return response?.PersonalData?.Email;
 		}
 
 		private static Func<OperationGrpcModel, object> GetSortFunc(string sortLabel) =>

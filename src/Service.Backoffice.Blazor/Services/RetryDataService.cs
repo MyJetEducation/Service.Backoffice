@@ -13,19 +13,12 @@ namespace Service.Backoffice.Blazor.Services
 	{
 		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 
-		public RetryDataService(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
-		{
-			_serverKeyValueService = serverKeyValueService;
-		}
+		public RetryDataService(IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService) => _serverKeyValueService = serverKeyValueService;
 
-		public async ValueTask<RetryDataViewModel> GetData(string email)
+		public async ValueTask<RetryDataViewModel> GetData(string userId)
 		{
-			if (email.IsNullOrWhiteSpace())
-				return new RetryDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new RetryDataViewModel($"No user found by email {email}");
+			if (userId.IsNullOrWhiteSpace())
+				return new RetryDataViewModel("Please select user");
 
 			var countDto = await GetServerKeyValueObject<EducationRetryCountDto>(userId, "education_retry_count");
 			var dateDto = await GetServerKeyValueObject<EducationRetryLastDateDto>(userId, "education_retry_lastdate");
@@ -51,14 +44,10 @@ namespace Service.Backoffice.Blazor.Services
 			return JsonConvert.DeserializeObject<T>(value);
 		}
 
-		public async ValueTask<RetryDataViewModel> SetCount(string email, int value)
+		public async ValueTask<RetryDataViewModel> SetCount(string userId, int value)
 		{
-			if (email.IsNullOrWhiteSpace())
-				return new RetryDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new RetryDataViewModel($"No user found by email {email}");
+			if (userId.IsNullOrWhiteSpace())
+				return new RetryDataViewModel("Please select user");
 
 			CommonGrpcResponse result = await _serverKeyValueService.Service.Put(new ItemsPutGrpcRequest
 			{
@@ -73,23 +62,18 @@ namespace Service.Backoffice.Blazor.Services
 				}
 			});
 
-			if (!result.IsSuccess)
-				return new RetryDataViewModel("Error while set retry count.");
-
-			return await GetData(email);
+			return result.IsSuccess
+				? await GetData(userId)
+				: new RetryDataViewModel("Error while set retry count.");
 		}
 
-		public async ValueTask<RetryDataViewModel> SetDate(string email, DateTime? value)
+		public async ValueTask<RetryDataViewModel> SetDate(string userId, DateTime? value)
 		{
 			if (value == null)
 				return new RetryDataViewModel("Please enter valid date");
 
-			if (email.IsNullOrWhiteSpace())
-				return new RetryDataViewModel("Please enter user email");
-
-			string userId = await GetUserId(email);
-			if (userId == null)
-				return new RetryDataViewModel($"No user found by email {email}");
+			if (userId.IsNullOrWhiteSpace())
+				return new RetryDataViewModel("Please select user");
 
 			CommonGrpcResponse result = await _serverKeyValueService.Service.Put(new ItemsPutGrpcRequest
 			{
@@ -107,12 +91,7 @@ namespace Service.Backoffice.Blazor.Services
 			if (!result.IsSuccess)
 				return new RetryDataViewModel("Error while set retry date.");
 
-			return await GetData(email);
-		}
-
-		private async ValueTask<string> GetUserId(string email)
-		{
-			return null;
+			return await GetData(userId);
 		}
 	}
 }

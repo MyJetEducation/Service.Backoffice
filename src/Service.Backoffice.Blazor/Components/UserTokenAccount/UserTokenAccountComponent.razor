@@ -8,10 +8,6 @@
 
 @inject IUserTokenAccountDataService _userTokenAccountDataService
 
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-
 @if (_data is {ErrorText: {}})
 {
     <div class="alert alert-danger" role="alert">

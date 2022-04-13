@@ -5,12 +5,12 @@ namespace Service.Backoffice.Blazor.Services
 {
 	public interface IEducationProgressDataService
 	{
-		ValueTask<EducationProgressDataViewModel> GetProgress(string email);
+		ValueTask<EducationProgressDataViewModel> GetProgress(string userId);
 
-		ValueTask<EducationProgressDataViewModel> ClearProgress(string email, EducationTutorial? tutorial, int? unit, int? task);
+		ValueTask<EducationProgressDataViewModel> ClearProgress(string userId, EducationTutorial? tutorial, int? unit, int? task);
 
-		ValueTask ClearAll(string email, ClearProgressFlags clear);
+		ValueTask ClearAll(string userId, ClearProgressFlags clear);
 		
-		ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string email, EducationTutorial changeTutorial, int changeUnit, int changeTask, DateTime? changeDate);
+		ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string userId, EducationTutorial changeTutorial, int changeUnit, int changeTask, DateTime? changeDate);
 	}
 }
