@@ -1,0 +1,215 @@
+@using Microsoft.AspNetCore.Components
+@using Service.Backoffice.Models
+@using Service.Backoffice.Services
+@using Service.Core.Client.Extensions
+@using Service.MarketProduct.Domain.Models
+@using Service.MarketProduct.Grpc.Models
+@using Service.UserTokenAccount.Domain.Models
+@using Service.UserTokenAccount.Grpc.Models
+
+@inject IMarketProductDataService _marketProductDataService
+@inject ISnackbar _snackbar
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<div class="container">
+    <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
+        <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+        Refresh
+    </button>
+</div>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+    <MudTable RowStyleFunc="RowStyleFunc" ServerData="@(new Func<TableState, Task<TableData<MarketProductItemDataViewModel>>>(ServerReload))"
+              Dense="true" Hover="true" FixedHeader="true" CanCancelEdit="true" CommitEditTooltip="Edit" IsEditRowSwitchingBlocked="true"
+              RowEditPreview="BackupItem" RowEditCancel="ResetItem" OnCommitEditClick="SaveItem" @bind-SelectedItem="_selectedItem" @ref="_table">
+        <ToolBarContent>
+            <MudSelect Label="Product" Placeholder="Product" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@ProductTypeFilter" Class="mr-5">
+                @foreach (MarketProductType productType in Enum.GetValues<MarketProductType>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(productType))">@Enum.GetName(productType)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Category" Placeholder="Category" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@ProductCategoryFilter" Class="mr-5">
+                @foreach (MarketProductCategory category in Enum.GetValues<MarketProductCategory>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(category))">@Enum.GetName(category)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudDatePicker Placeholder="DateFrom" Label="DateFrom" @bind-Date="@DateFromFilter" Class="mr-5"/>
+            <MudDatePicker Placeholder="DateTo" Label="DateTo" @bind-Date="@DateToFilter" Class="mr-5"/>
+            <MudCheckBox Label="Show disabled" @bind-Checked="@WithDisabled" Class="mr-5"/>
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton OnClick="@Filter">Filter</MudIconButton>
+                <MudIconButton OnClick="@ClearFilters">Clear</MudIconButton>
+            </MudButtonGroup>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Disabled)" T="MarketProductItemDataViewModel">Disabled</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Priority)" T="MarketProductItemDataViewModel">Priority</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.ProductType)" T="MarketProductItemDataViewModel">Product</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Date)" T="MarketProductItemDataViewModel">Date</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Price)" T="MarketProductItemDataViewModel">Price</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(MarketProductGrpcModel.Category)" T="MarketProductItemDataViewModel">Category</MudTableSortLabel>
+            </MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Disabled">
+                <MudIcon Icon="@(context.Disabled ? Icons.Filled.CheckBox : Icons.Filled.CheckBoxOutlineBlank)"/>
+            </MudTd>
+            <MudTd DataLabel="Priority">@context.Priority</MudTd>
+            <MudTd DataLabel="Product" Class="value-column2">@context.ProductType.ToString()</MudTd>
+            <MudTd DataLabel="Date">@context.Date</MudTd>
+            <MudTd DataLabel="Price">@context.Price</MudTd>
+            <MudTd DataLabel="Name">@context.Category</MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="Disabled">
+                <MudCheckBox @bind-Checked="@context.Disabled"/>
+            </MudTd>
+            <MudTd DataLabel="Priority">
+                <MudNumericField T="int" @bind-Value="@context.Priority" Validation="(Func<int, bool>) (value => value >= 0)" Required Min="0"/>
+            </MudTd>
+            <MudTd DataLabel="Product">@context.ProductType.ToString()</MudTd>
+            <MudTd DataLabel="Date">@context.Date</MudTd>
+            <MudTd DataLabel="Price">
+                <MudNumericField T="decimal" @bind-Value="@context.PriceValue" Validation="(Func<decimal, bool>) (value => value > 0)" Required Min="0m"/>
+            </MudTd>
+            <MudTd DataLabel="Category">
+                <MudSelect T="MarketProductCategory" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@context.Category" Class="mr-5">
+                    @foreach (MarketProductCategory category in Enum.GetValues<MarketProductCategory>())
+                    {
+                        <MudSelectItem Value="@category">@Enum.GetName(category)</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudTd>
+        </RowEditingTemplate>
+        <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
+}
+
+@code {
+    private MarketProductDataViewModel _data;
+    private MudTable<MarketProductItemDataViewModel> _table;
+    private MarketProductItemDataViewModel _selectedItem;
+    private MarketProductItemDataViewModel _backupItem;
+    private int _totalItems;
+    private bool IsRefreshing { get; set; } = false;
+
+    private bool WithDisabled { get; set; } = true;
+    private DateTime? DateFromFilter { get; set; }
+    private DateTime? DateToFilter { get; set; }
+    private int? ProductTypeFilter { get; set; }
+    private int? ProductCategoryFilter { get; set; }
+
+    private string RowStyleFunc(MarketProductItemDataViewModel model, int index) => $"background-color: {(model.Disabled ? "#F5B7B1" : "none")};";
+
+    private void BackupItem(object element)
+    {
+        var item = (MarketProductItemDataViewModel) element;
+
+        _backupItem = new MarketProductItemDataViewModel
+        {
+            ProductType = item.ProductType,
+            Date = item.Date,
+            Disabled = item.Disabled,
+            Price = item.Price,
+            PriceValue = item.PriceValue,
+            Category = item.Category,
+            Priority = item.Priority
+        };
+    }
+
+    private void ResetItem(object element)
+    {
+        var item = (MarketProductItemDataViewModel) element;
+
+        item.ProductType = _backupItem.ProductType;
+        item.Date = _backupItem.Date;
+        item.Disabled = _backupItem.Disabled;
+        item.Price = _backupItem.Price;
+        item.PriceValue = _backupItem.PriceValue;
+        item.Category = _backupItem.Category;
+        item.Priority = _backupItem.Priority;
+    }
+
+    private async void SaveItem()
+    {
+        UpdateProductResultViewModel result = await _marketProductDataService.UpdateProduct(_selectedItem);
+        if (result.Saved)
+            await _table.ReloadServerData();
+        else
+            _snackbar.Add(result.Error);
+    }
+
+    private async Task Filter()
+    {
+        await FetchData();
+        await _table.ReloadServerData();
+    }
+
+    private async Task FetchData(TableState state = null)
+    {
+        IsRefreshing = true;
+        StateHasChanged();
+
+        _table.SetEditingItem(null);
+        _data = await _marketProductDataService.GetProducts(ProductTypeFilter, ProductCategoryFilter, DateFromFilter, DateToFilter, WithDisabled, state ?? new TableState());
+        _totalItems = _data.TotalItems;
+
+        IsRefreshing = false;
+        StateHasChanged();
+    }
+
+    private async Task ClearFilters()
+    {
+        WithDisabled = true;
+        DateFromFilter = null;
+        DateToFilter = null;
+        ProductTypeFilter = null;
+        ProductCategoryFilter = null;
+
+        await Filter();
+    }
+
+    private async Task<TableData<MarketProductItemDataViewModel>> ServerReload(TableState state)
+    {
+        await FetchData(state);
+
+        return new TableData<MarketProductItemDataViewModel> {TotalItems = _totalItems, Items = _data.Products};
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = new MarketProductDataViewModel();
+        _table = new MudTable<MarketProductItemDataViewModel>();
+
+        await _table.ReloadServerData();
+    }
+
+}

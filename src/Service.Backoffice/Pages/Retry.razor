@@ -1,0 +1,13 @@
+@page "/retry"
+
+<PageTitle>@Program.ApplicationTitle: User retries</PageTitle>
+
+@using Service.Backoffice.Components.Retry;
+
+<h4 class="header-link" @onclick="StateHasChanged">User retries</h4>
+<hr/>
+
+<RetryComponent/>
+
+@code {
+}

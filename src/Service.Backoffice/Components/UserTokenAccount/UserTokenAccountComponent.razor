@@ -1,0 +1,224 @@
+@using Microsoft.AspNetCore.Components
+@using Service.Backoffice.Models
+@using Service.Backoffice.Services
+@using Service.Core.Client.Extensions
+@using Service.MarketProduct.Domain.Models
+@using Service.UserTokenAccount.Domain.Models
+@using Service.UserTokenAccount.Grpc.Models
+
+@inject IUserTokenAccountDataService _userTokenAccountDataService
+
+@if (_data is {ErrorText: {}})
+{
+    <div class="alert alert-danger" role="alert">
+        @_data.ErrorText
+    </div>
+}
+
+<div class="container">
+    <button class="btn btn-primary" style="white-space: nowrap;" type="button" @onclick="Filter" disabled="@IsRefreshing">
+        <span class="spinner-border spinner-border-sm" style="display: @(IsRefreshing ? "inline-block" : "none");" role="status" aria-hidden="true"></span>
+        Refresh
+    </button>
+</div>
+
+@if (_data != null && _data.ErrorText.IsNullOrEmpty())
+{
+    <MudTable ServerData="@(new Func<TableState, Task<TableData<UserTokenAccountDataOperationViewModel>>>(ServerReload))"
+              Dense="true"
+              Hover="true"
+              FixedHeader="true"
+              GroupBy="@_groupDefinition"
+              GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
+              GroupFooterClass="mb-4"
+              @ref="_table">
+        <ToolBarContent>
+            <MudSelect Label="User" T="ParamValue" Placeholder="User" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@UserFilter" Text="@UserFilter?.Value" Class="mr-5">
+                @if (_data?.UserFilter != null)
+                {
+                    @foreach (ParamValue item in _data.UserFilter)
+                    {
+                        <MudSelectItem Value="@item">@item.Value</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+            <MudDatePicker Placeholder="DateFrom" Label="DateFrom" @bind-Date="@DateFromFilter" Class="mr-5"/>
+            <MudDatePicker Placeholder="DateTo" Label="DateTo" @bind-Date="@DateToFilter" Class="mr-5"/>
+            <MudSelect Label="Movement" Placeholder="Movement" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@MovementFilter" Class="mr-5">
+                @foreach (TokenOperationMovement movement in Enum.GetValues<TokenOperationMovement>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(movement))">@Enum.GetName(movement)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Source" Placeholder="Source" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@SourceFilter" Class="mr-5">
+                @foreach (TokenOperationSource source in Enum.GetValues<TokenOperationSource>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(source))">@Enum.GetName(source)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSelect Label="Product" Placeholder="Product" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@ProductTypeFilter" Class="mr-5">
+                @foreach (MarketProductType productType in Enum.GetValues<MarketProductType>())
+                {
+                    <MudSelectItem Value="@((int?) Convert.ToInt32(productType))">@Enum.GetName(productType)</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButtonGroup Color="Color.Primary" Variant="Variant.Outlined">
+                <MudIconButton OnClick="@Filter">Filter</MudIconButton>
+                <MudIconButton OnClick="@ClearFilters">Clear</MudIconButton>
+            </MudButtonGroup>
+        </ToolBarContent>
+        <ColGroup>
+            <col style="width: 60px;"/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+            <col/>
+        </ColGroup>
+        <HeaderContent>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.UserId)" T="UserTokenAccountDataOperationViewModel">User</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.Date)" T="UserTokenAccountDataOperationViewModel">Date</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.Movement)" T="UserTokenAccountDataOperationViewModel">Movement</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.Source)" T="UserTokenAccountDataOperationViewModel">Source</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.ProductType)" T="UserTokenAccountDataOperationViewModel">Product</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.Value)" T="UserTokenAccountDataOperationViewModel">Value</MudTableSortLabel>
+            </MudTh>
+            <MudTh>
+                <MudTh >Info</MudTh>
+            </MudTh>
+        </HeaderContent>
+        <GroupHeaderTemplate>
+            <MudTh Class="mud-table-cell-custom-group value-column2" colspan="7">@($"{context.GroupName}: {context.Key}")</MudTh>
+        </GroupHeaderTemplate>
+        <RowTemplate>
+            <MudTd DataLabel="User">@context.UserName</MudTd>
+            <MudTd DataLabel="Date">@context.Date</MudTd>
+            <MudTd DataLabel="Movement">@context.Movement</MudTd>
+            <MudTd DataLabel="Source">@context.Source</MudTd>
+            <MudTd DataLabel="Product">@context.ProductType</MudTd>
+            <MudTd DataLabel="Value" Style="text-align: right" Class="@(context.IsIncome ? "account-income" : "account-outcome")">@context.Value</MudTd>
+            <MudTd DataLabel="Info">
+                @if (!context.Info.IsNullOrWhiteSpace())
+                {
+                    <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Info" OnClick="@(() => ShowJson(context))" StartIcon="@(context.ShowJson ? Icons.Filled.SearchOff : Icons.Filled.Search)">json</MudButton>
+                }
+            </MudTd>
+        </RowTemplate>
+        <ChildRowContent>
+            @if (context.ShowJson)
+            {
+                <MudTr>
+                    <td colspan="7" class="json-info">
+                        <pre>@context.Info</pre>
+                    </td>
+                </MudTr>
+            }
+        </ChildRowContent>
+        <GroupFooterTemplate>
+            <MudTh colspan="5"></MudTh>
+            <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer">Total: @context.Items.FirstOrDefault()?.Total.GetValueOrDefault()</MudTh>
+            <MudTh></MudTh>
+        </GroupFooterTemplate>
+        <NoRecordsContent>
+            <MudText>No matching records found</MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>Loading...</MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager/>
+        </PagerContent>
+    </MudTable>
+    <MudSwitch T="bool" CheckedChanged="@(GroupingSet)" Color="Color.Primary">Grouping</MudSwitch>
+}
+
+@code {
+    private UserTokenAccountDataViewModel _data;
+    private MudTable<UserTokenAccountDataOperationViewModel> _table;
+    private int _totalItems;
+    private bool IsRefreshing { get; set; } = false;
+
+    private ParamValue UserFilter { get; set; }
+    private DateTime? DateFromFilter { get; set; }
+    private DateTime? DateToFilter { get; set; }
+    private int? MovementFilter { get; set; }
+    private int? SourceFilter { get; set; }
+    private int? ProductTypeFilter { get; set; }
+
+    private TableGroupDefinition<UserTokenAccountDataOperationViewModel> _groupDefinition = null;
+
+    private async Task Filter()
+    {
+        await FetchData();
+        await _table.ReloadServerData();
+    }
+
+    private async Task FetchData(TableState state = null)
+    {
+        IsRefreshing = true;
+        StateHasChanged();
+
+        _data = await _userTokenAccountDataService.GetOperations(UserFilter?.Param, DateFromFilter, DateToFilter, MovementFilter, SourceFilter, ProductTypeFilter, state ?? new TableState());
+        _totalItems = _data.TotalItems;
+
+        IsRefreshing = false;
+        StateHasChanged();
+    }
+
+    private async Task ClearFilters()
+    {
+        UserFilter = null;
+        DateFromFilter = null;
+        DateToFilter = null;
+        MovementFilter = null;
+        SourceFilter = null;
+        ProductTypeFilter = null;
+
+        await Filter();
+    }
+
+    private async Task<TableData<UserTokenAccountDataOperationViewModel>> ServerReload(TableState state)
+    {
+        await FetchData(state);
+
+        return new TableData<UserTokenAccountDataOperationViewModel> {TotalItems = _totalItems, Items = _data.Operations};
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _data = new UserTokenAccountDataViewModel();
+        _table = new MudTable<UserTokenAccountDataOperationViewModel>();
+
+        await _table.ReloadServerData();
+    }
+
+    private void GroupingSet(bool value)
+    {
+        if (value)
+            _groupDefinition = new TableGroupDefinition<UserTokenAccountDataOperationViewModel>
+            {
+                GroupName = "User",
+                Indentation = false,
+                Expandable = true,
+                IsInitiallyExpanded = false,
+                Selector = e => e.UserName
+            };
+        else
+            _groupDefinition = null;
+    }
+
+    private void ShowJson(UserTokenAccountDataOperationViewModel item) => item.ShowJson = !item.ShowJson;
+}

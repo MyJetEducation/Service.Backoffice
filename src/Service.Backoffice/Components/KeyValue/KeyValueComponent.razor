@@ -1,0 +1,72 @@
+@using Microsoft.AspNetCore.Components
+@using Service.Backoffice.Models
+@using Service.Backoffice.Services
+@using Service.Core.Client.Extensions
+
+@inject IKeyValueDataService _keyValueDataService
+@inject IUserResolver _userResolver
+
+<MudGrid Justify="Justify.FlexStart">
+    <MudItem xs="5">
+        <MudAutocomplete Dense="true" Label="User" Immediate="false" Clearable="true" MinCharacters="3" Variant="Variant.Outlined" ResetValueOnEmptyText="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
+            @ref="_userList"
+            T="ParamValue"
+            SearchFunc="@(GetUsers)"
+            ValueChanged="@(Filter)"
+            ToStringFunc="@(pv => pv?.Value)" />
+    </MudItem>
+    <MudItem xs="1">
+        @if (IsRefreshing)
+        {
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true"/>
+        }
+    </MudItem>
+    @if (_data is {ErrorText: {}})
+    {
+        <MudItem xs="12">
+            <MudAlert Severity="Severity.Error">@(_data.ErrorText)</MudAlert>
+        </MudItem>
+    }
+
+    @if (_data != null && _data.ErrorText.IsNullOrEmpty())
+    {
+        <MudItem xs="12">
+            <MudTable Items="@_data.Items" Dense="true" Bordered="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>Key</MudTh>
+                    <MudTh>Value</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Nr">@context.Param</MudTd>
+                    <MudTd DataLabel="Sign">@context.Value</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    private KeyValueDataViewModel _data;
+    private bool IsRefreshing { get; set; } = false;
+    private MudAutocomplete<ParamValue> _userList;
+
+    private async Task Filter(ParamValue user)
+    {
+        await _userList.ToggleMenu();
+
+        if (user == null)
+        {
+            _data = null;
+            return;
+        }
+
+        IsRefreshing = true;
+        _data = await _keyValueDataService.GetKeyValueData(user.Param);
+        IsRefreshing = false;
+    }
+
+    private async Task<IEnumerable<ParamValue>> GetUsers(string text) => text.IsNullOrWhiteSpace()
+        ? Array.Empty<ParamValue>()
+        : await _userResolver.GetUsers(text);
+
+}
