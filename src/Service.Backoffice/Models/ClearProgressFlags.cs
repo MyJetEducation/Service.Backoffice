@@ -11,5 +11,7 @@
 		public bool Knowledge { get; set; }
 		public bool UserTime { get; set; }
 		public bool Retry { get; set; }
+
+		public bool NeedClearProgressFlags => Progress || Achievements || Statuses || Habits || Skills || Knowledge || UserTime || Retry;
 	}
 }

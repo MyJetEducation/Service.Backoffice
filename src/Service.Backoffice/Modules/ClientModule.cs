@@ -1,9 +1,12 @@
 using Autofac;
+using MyJetWallet.Sdk.ServiceBus;
+using MyServiceBus.TcpClient;
 using Service.EducationProgress.Client;
 using Service.KeyValue.Client;
 using Service.MarketProduct.Client;
 using Service.PersonalData.Client;
 using Service.ServerKeyValue.Client;
+using Service.ServiceBus.Models;
 using Service.UserTokenAccount.Client;
 
 namespace Service.Backoffice.Modules
@@ -18,6 +21,13 @@ namespace Service.Backoffice.Modules
 			builder.RegisterPersonalDataClient(Program.Settings.PersonalDataServiceUrl);
 			builder.RegisterKeyValueClient(Program.Settings.KeyValueServiceUrl);
 			builder.RegisterEducationProgressClient(Program.Settings.EducationProgressServiceUrl);
+
+			var tcpServiceBus = new MyServiceBusTcpClient(() => Program.Settings.ServiceBusWriter, "MyJetEducation Service.Backoffice");
+			builder
+				.Register(_ => new MyServiceBusPublisher<ClearEducationProgressServiceBusModel>(tcpServiceBus, ClearEducationProgressServiceBusModel.TopicName, false))
+				.As<IServiceBusPublisher<ClearEducationProgressServiceBusModel>>()
+				.SingleInstance();
+			tcpServiceBus.Start();
 		}
 	}
 }

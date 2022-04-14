@@ -9,7 +9,7 @@ namespace Service.Backoffice.Services
 
 		ValueTask<EducationProgressDataViewModel> ClearProgress(string userId, EducationTutorial? tutorial, int? unit, int? task);
 
-		ValueTask ClearAll(string userId, ClearProgressFlags clear);
+		ValueTask ClearAll(string userId, ClearProgressFlags clearFlags);
 		
 		ValueTask<EducationProgressChangeDateDataViewModel> ChangeTaskDate(string userId, EducationTutorial changeTutorial, int changeUnit, int changeTask, DateTime? changeDate);
 	}

@@ -35,7 +35,10 @@ namespace Service.Backoffice.Settings
         [YamlProperty("Backoffice.PersonalDataServiceUrl")]
         public string PersonalDataServiceUrl { get; set; }
 
-        [YamlProperty("Backoffice.ServerKeyValueKeys")]
-        public ServerKeyValueKeysSettingsModel ServerKeyValueKeys { get; set; }
+        [YamlProperty("Backoffice.ServiceBusWriter")]
+        public string ServiceBusWriter { get; set; }
+
+        [YamlProperty("Backoffice.ServerKeyValueEducationProgressKey")]
+        public string ServerKeyValueEducationProgressKey { get; set; }
     }
 }
