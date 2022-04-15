@@ -164,7 +164,7 @@
         if (result.Saved)
             await _table.ReloadServerData();
         else
-            _snackbar.Add(result.Error);
+            _snackbar.Add(result.Error, Severity.Error);
     }
 
     private async Task Filter()

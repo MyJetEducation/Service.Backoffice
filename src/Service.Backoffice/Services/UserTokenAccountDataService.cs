@@ -106,5 +106,19 @@ namespace Service.Backoffice.Services
 				nameof(OperationGrpcModel.Value) => o => o.Value,
 				_ => o => o.Date
 			};
+
+		public async ValueTask<(bool added, decimal resultAmount)> AddAmount(string userId, double amount)
+		{
+			NewOperationGrpcResponse response = await _userTokenAccountService.TryCall(service => service.NewOperationAsync(new NewOperationGrpcRequest()
+			{
+				UserId = userId,
+				Value = (decimal) amount,
+				Source = TokenOperationSource.TokenPurchase,
+				Movement = TokenOperationMovement.Income,
+				Info = JsonConvert.SerializeObject(new {info = "from backoffice"})
+			}));
+
+			return (response.Result == TokenOperationResult.Ok, response.Value.GetValueOrDefault());
+		}
 	}
 }

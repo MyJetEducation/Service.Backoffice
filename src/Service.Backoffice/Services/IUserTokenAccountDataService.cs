@@ -6,5 +6,7 @@ namespace Service.Backoffice.Services
 	public interface IUserTokenAccountDataService
 	{
 		ValueTask<UserTokenAccountDataViewModel> GetOperations(string userId, DateTime? dateFrom, DateTime? dateTo, int? movement, int? source, int? productType, TableState tableState);
+
+		ValueTask<(bool added, decimal resultAmount)> AddAmount(string userId, double amount);
 	}
 }
