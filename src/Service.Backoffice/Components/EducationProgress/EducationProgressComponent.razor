@@ -6,6 +6,7 @@
 @using Service.Education.Helpers
 @using Service.Education.Structure
 @using Service.EducationProgress.Domain.Models
+@using Service.EducationProgress.Grpc.Models
 
 @inject IEducationProgressDataService _educationProgressService
 @inject IUserResolver _userResolver
@@ -123,10 +124,10 @@
                 </div>
                 <div class="card-body">
 
-                    @{ IGrouping<EducationTutorial, EducationProgressDto>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
+                    @{ IGrouping<EducationTutorial, EducationProgressTaskViewModel>[] tutorialInfo = _data.Items.GroupBy(itm => itm.Tutorial).OrderBy(itm => itm.Key).ToArray(); }
                     @{ int tasksCount = tutorialInfo.First().Count(g => g.Unit == 1);}
 
-                    @foreach (IGrouping<EducationTutorial, EducationProgressDto> tutorialGroups in tutorialInfo)
+                    @foreach (IGrouping<EducationTutorial, EducationProgressTaskViewModel> tutorialGroups in tutorialInfo)
                     {
                         <table class="table table-bordered table-sm progress-table">
                             <thead class="thead-dark">
@@ -146,9 +147,9 @@
                             </thead>
                             <tbody>
 
-                            @{ IGrouping<int, EducationProgressDto>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
+                            @{ IGrouping<int, EducationProgressTaskViewModel>[] unitGroups = tutorialGroups.GroupBy(g => g.Unit).OrderBy(grp => grp.Key).ToArray(); }
 
-                            @foreach (IGrouping<int, EducationProgressDto> unitGroup in unitGroups)
+                            @foreach (IGrouping<int, EducationProgressTaskViewModel> unitGroup in unitGroups)
                             {
                                 <tr>
                                     <td class="table-primary progress-table-head-td">
@@ -156,9 +157,9 @@
                                         <span @onclick="@(_ => Clear(tutorialGroups.Key, unitGroup.Key, null))" class="oi oi-x del-btn" aria-hidden="true"></span>
                                     </td>
 
-                                    @{ EducationProgressDto[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
+                                    @{ EducationProgressTaskViewModel[] taskInfo = unitGroup.OrderBy(u => u.Task).ToArray();}
 
-                                    @foreach (EducationProgressDto task in taskInfo)
+                                    @foreach (EducationProgressTaskViewModel task in taskInfo)
                                     {
                                         int? value = task.Value;
                                         var elseValue = "";
@@ -332,4 +333,3 @@
     }
 
 }
-

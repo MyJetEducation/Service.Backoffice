@@ -1,36 +1,27 @@
 ﻿using MyJetWallet.Sdk.ServiceBus;
-using Newtonsoft.Json;
 using Service.Backoffice.Models;
 using Service.Core.Client.Extensions;
 using Service.Core.Client.Models;
 using Service.Education.Structure;
-using Service.EducationProgress.Domain.Models;
 using Service.EducationProgress.Grpc;
 using Service.EducationProgress.Grpc.Models;
-using Service.Grpc;
-using Service.ServerKeyValue.Grpc;
-using Service.ServerKeyValue.Grpc.Models;
 using Service.ServiceBus.Models;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace Service.Backoffice.Services
 {
 	public class EducationProgressDataService : IEducationProgressDataService
 	{
-		private readonly IGrpcServiceProxy<IServerKeyValueService> _serverKeyValueService;
 		private readonly IEducationProgressService _educationProgressService;
 		private readonly IServiceBusPublisher<ClearEducationProgressServiceBusModel> _clearProgressPublisher;
 		private readonly IServiceBusPublisher<ClearEducationUiProgressServiceBusModel> _clearUiProgressPublisher;
 
 		public EducationProgressDataService(IEducationProgressService educationProgressService,
 			IServiceBusPublisher<ClearEducationProgressServiceBusModel> clearProgressPublisher,
-			IServiceBusPublisher<ClearEducationUiProgressServiceBusModel> clearUiProgressPublisher,
-			IGrpcServiceProxy<IServerKeyValueService> serverKeyValueService)
+			IServiceBusPublisher<ClearEducationUiProgressServiceBusModel> clearUiProgressPublisher)
 		{
 			_educationProgressService = educationProgressService;
 			_clearProgressPublisher = clearProgressPublisher;
 			_clearUiProgressPublisher = clearUiProgressPublisher;
-			_serverKeyValueService = serverKeyValueService;
 		}
 
 		public async ValueTask<EducationProgressDataViewModel> GetProgress(string userId) => userId.IsNullOrWhiteSpace()
@@ -57,21 +48,26 @@ namespace Service.Backoffice.Services
 
 		public async ValueTask<EducationProgressDataViewModel> GetProgressByUser(string userId)
 		{
-			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
+			ProgressDataGrpcResponse response = await _educationProgressService.GetProgressData(new GetProgressDataGrpcRequest
 			{
-				Key = Program.Settings.ServerKeyValueEducationProgressKey,
 				UserId = userId
 			});
 
-			string value = response.Value;
-			if (value.IsNullOrWhiteSpace())
+			if (response == null)
 				return new EducationProgressDataViewModel("Error occured while retrieving education progress for user");
 
 			EducationProgressGrpcResponse progress = await _educationProgressService.GetProgressAsync(new GetEducationProgressGrpcRequest {UserId = userId});
 
 			return new EducationProgressDataViewModel
 			{
-				Items = JsonSerializer.Deserialize<EducationProgressDto[]>(value),
+				Items = response.Items.Select(model => new EducationProgressTaskViewModel
+				{
+					Tutorial = model.Tutorial,
+					Unit = model.Unit,
+					Task = model.Task,
+					Value = model.Value,
+					Date = model.Date
+				}).ToArray(),
 				TaskScore = (progress?.TaskScore).GetValueOrDefault(),
 				TestScore = (progress?.TestScore).GetValueOrDefault()
 			};
@@ -111,38 +107,13 @@ namespace Service.Backoffice.Services
 			if (date == null)
 				return EducationProgressChangeDateDataViewModel.Error("Date is not valid");
 
-			string educationProgressKey = Program.Settings.ServerKeyValueEducationProgressKey;
-
-			ValueGrpcResponse response = await _serverKeyValueService.Service.GetSingle(new ItemsGetSingleGrpcRequest
+			CommonGrpcResponse saveResponse = await _educationProgressService.ChangeTaskDate(new ChangeTaskDateGrpcRequest
 			{
 				UserId = userId,
-				Key = educationProgressKey
-			});
-
-			if (response == null)
-				return EducationProgressChangeDateDataViewModel.Error($"Error occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {userId}");
-
-			EducationProgressDto[] dtos = JsonConvert.DeserializeObject<EducationProgressDto[]>(response.Value);
-			if (dtos == null)
-				return EducationProgressChangeDateDataViewModel.Error($"Error (2) occured while setting new date to tutorial/unit/task {tutorial}/{unit}/{task} for user {userId}");
-
-			EducationProgressDto dto = dtos.Where(dto => dto.Tutorial == tutorial)
-				.Where(dto => dto.Unit == unit)
-				.First(dto => dto.Task == task);
-
-			dto.Date = date;
-
-			CommonGrpcResponse saveResponse = await _serverKeyValueService.Service.Put(new ItemsPutGrpcRequest
-			{
-				UserId = userId,
-				Items = new[]
-				{
-					new KeyValueGrpcModel
-					{
-						Key = educationProgressKey,
-						Value = JsonConvert.SerializeObject(dtos)
-					}
-				}
+				Tutorial = tutorial,
+				Unit = unit,
+				Task = task,
+				Date = date.Value
 			});
 
 			return saveResponse.IsSuccess

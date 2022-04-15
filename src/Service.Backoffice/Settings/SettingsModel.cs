@@ -37,8 +37,5 @@ namespace Service.Backoffice.Settings
 
         [YamlProperty("Backoffice.ServiceBusWriter")]
         public string ServiceBusWriter { get; set; }
-
-        [YamlProperty("Backoffice.ServerKeyValueEducationProgressKey")]
-        public string ServerKeyValueEducationProgressKey { get; set; }
     }
 }

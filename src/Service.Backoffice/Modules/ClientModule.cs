@@ -27,6 +27,10 @@ namespace Service.Backoffice.Modules
 				.Register(_ => new MyServiceBusPublisher<ClearEducationProgressServiceBusModel>(tcpServiceBus, ClearEducationProgressServiceBusModel.TopicName, false))
 				.As<IServiceBusPublisher<ClearEducationProgressServiceBusModel>>()
 				.SingleInstance();
+			builder
+				.Register(_ => new MyServiceBusPublisher<ClearEducationUiProgressServiceBusModel>(tcpServiceBus, ClearEducationUiProgressServiceBusModel.TopicName, false))
+				.As<IServiceBusPublisher<ClearEducationUiProgressServiceBusModel>>()
+				.SingleInstance();
 			tcpServiceBus.Start();
 		}
 	}
