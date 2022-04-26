@@ -14,7 +14,7 @@
       <PackageReference Include="MyJetEducation.Service.EducationRetry.Client" Version="1.0.8" />
       <PackageReference Include="MyJetEducation.Service.KeyValue.Client" Version="1.0.12" />
       <PackageReference Include="MyJetEducation.Service.ServerKeyValue.Client" Version="1.0.13" />
-      <PackageReference Include="MyJetEducation.Service.ServiceBus" Version="1.0.29" />
+      <PackageReference Include="MyJetEducation.Service.ServiceBus" Version="1.0.31" />
       <PackageReference Include="MyJetEducation.Service.UserTokenAccount.Client" Version="1.0.1" />
       <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.1.7" />
       <PackageReference Include="MyJetWallet.Service.PersonalData.Client" Version="1.1.9" />
