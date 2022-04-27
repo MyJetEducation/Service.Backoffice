@@ -247,7 +247,10 @@
     private async Task Filter(ParamValue user, bool initial = false)
     {
         if (initial)
+        {
             await _userList.ToggleMenu();
+            StateHasChanged();
+        }
 
         if (user == null)
         {
