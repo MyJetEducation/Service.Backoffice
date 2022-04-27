@@ -10,9 +10,11 @@
 		{
 		}
 
-		public ParamValue[] UserFilter { get; set; }
-		
 		public int TotalItems { get; set; }
+
+		public string UserName { get; set; }
+		public decimal? UserTotal { get; set; }
+		public string UserId { get; set; }
 
 		public UserTokenAccountDataOperationViewModel[] Operations { get; set; }
 	}

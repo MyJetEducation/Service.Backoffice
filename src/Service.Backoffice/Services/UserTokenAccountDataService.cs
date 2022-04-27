@@ -34,9 +34,12 @@ namespace Service.Backoffice.Services
 				Source = (TokenOperationSource?) source
 			});
 
-			IEnumerable<OperationGrpcModel> allItems = (operationsResposne?.Operations ?? Array.Empty<OperationGrpcModel>())
+			OperationGrpcModel[] operations = operationsResposne?.Operations ?? Array.Empty<OperationGrpcModel>();
+			IEnumerable<OperationGrpcModel> allItems = operations
 				.WhereIf(dateFrom != null, model => model.Date >= dateFrom)
 				.WhereIf(dateTo != null, model => model.Date <= dateTo);
+
+			var userDictionary = new Dictionary<string, string>();
 
 			IOrderedEnumerable<OperationGrpcModel> pageItems = allItems
 				.Skip(tableState.Page * tableState.PageSize)
@@ -54,6 +57,9 @@ namespace Service.Backoffice.Services
 				bool isIncome = operation.Movement == TokenOperationMovement.Income;
 				string sign = isIncome ? "+" : "-";
 
+				if (!userDictionary.ContainsKey(operationUserId))
+					userDictionary.Add(operationUserId, await GetUserEmail(operationUserId));
+
 				viewModels.Add(new UserTokenAccountDataOperationViewModel
 				{
 					UserId = operationUserId,
@@ -63,24 +69,26 @@ namespace Service.Backoffice.Services
 					Source = operation.Source.ToString(),
 					Value = $"{sign} {operation.Value:0.00}",
 					Info = FormatJsonValue(operation.Info),
-					UserName = await GetUserEmail(operationUserId),
+					UserName = userDictionary[operationUserId],
 					IsIncome = isIncome,
 					Total = accountResponse?.Value
 				});
 			}
 
-			ParamValue[] paramValues = viewModels
-				.Select(p => new ParamValue(p.UserId, p.UserName))
-				.DistinctBy(p => p.Param)
-				.OrderBy(p => p.Value)
-				.ToArray();
-
-			return new UserTokenAccountDataViewModel
+			var viewModel = new UserTokenAccountDataViewModel
 			{
 				Operations = viewModels.ToArray(),
-				UserFilter = paramValues,
-				TotalItems = allItems.Count()
+				TotalItems = allItems.Count(),
+				UserId = userId,
+				UserTotal = viewModels.FirstOrDefault()?.Total ?? 0m
 			};
+
+			if (userId != null)
+				viewModel.UserName = userDictionary.TryGetValue(userId, out string userName)
+					? userName
+					: await GetUserEmail(userId);
+
+			return viewModel;
 		}
 
 		private static string FormatJsonValue(string value) => value.IsNullOrWhiteSpace()

@@ -11,10 +11,10 @@
         <MudAutocomplete Dense="true" Label="User" Immediate="false" Clearable="true" MinCharacters="3" Variant="Variant.Outlined" ResetValueOnEmptyText="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
                          @ref="_userList"
                          T="ParamValue"
-                         SearchFunc="@(GetUsers)"
-                         ValueChanged="@(Filter)"
-                         ToStringFunc="@(pv => pv?.Value)">
-        </MudAutocomplete>
+                         Value="@User"
+                         SearchFunc="@GetUsers"
+                         ValueChanged="@Filter"
+                         ToStringFunc="@(pv => pv?.Value)" />
     </MudItem>
     <MudItem xs="1">
         @if (IsRefreshing)
@@ -84,15 +84,16 @@
 
     private async Task Filter(ParamValue user)
     {
-        await _userList.ToggleMenu();
+        User = user;
+
+        if (_userList.IsOpen)
+            await _userList.ToggleMenu();
 
         if (user == null)
         {
             _data = null;
             return;
         }
-
-        User = user;
 
         IsRefreshing = true;
 
@@ -128,5 +129,4 @@
     private async Task<IEnumerable<ParamValue>> GetUsers(string text) => text.IsNullOrWhiteSpace()
         ? Array.Empty<ParamValue>()
         : await _userResolver.GetUsers(text);
-
 }

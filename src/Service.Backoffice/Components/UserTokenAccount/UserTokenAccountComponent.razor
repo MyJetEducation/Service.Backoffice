@@ -33,20 +33,15 @@
                   Dense="true"
                   Hover="true"
                   FixedHeader="true"
-                  GroupBy="@_groupDefinition"
-                  GroupHeaderStyle="background-color:var(--mud-palette-background-grey)"
-                  GroupFooterClass="mb-4"
                   @ref="_table">
             <ToolBarContent>
-                <MudSelect Label="User" T="ParamValue" Placeholder="User" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@UserFilter" Text="@UserFilter?.Value" Class="mr-5">
-                    @if (_data?.UserFilter != null)
-                    {
-                        @foreach (ParamValue item in _data.UserFilter)
-                        {
-                            <MudSelectItem Value="@item">@item.Value</MudSelectItem>
-                        }
-                    }
-                </MudSelect>
+                <MudAutocomplete Label="User" Placeholder="User" Immediate="false" Clearable="true" MinCharacters="3" ResetValueOnEmptyText="true"
+                                 @ref="_filterUserList"
+                                 T="ParamValue"
+                                 Value="@FilterUser"
+                                 ValueChanged="@(pv => FilterUser = pv)"
+                                 SearchFunc="@GetUsers"
+                                 ToStringFunc="@(pv => pv?.Value)"/>
                 <MudDatePicker Placeholder="DateFrom" Label="DateFrom" @bind-Date="@DateFromFilter" Class="mr-5"/>
                 <MudDatePicker Placeholder="DateTo" Label="DateTo" @bind-Date="@DateToFilter" Class="mr-5"/>
                 <MudSelect Label="Movement" Placeholder="Movement" T="int?" AnchorOrigin="Origin.BottomCenter" Clearable="true" @bind-Value="@MovementFilter" Class="mr-5">
@@ -72,16 +67,6 @@
                     <MudIconButton OnClick="@ClearFilters">Clear</MudIconButton>
                 </MudButtonGroup>
             </ToolBarContent>
-            <ColGroup>
-                <col style="width: 60px;"/>
-                <col/>
-                <col/>
-                <col/>
-                <col/>
-                <col/>
-                <col/>
-                <col/>
-            </ColGroup>
             <HeaderContent>
                 <MudTh>
                     <MudTableSortLabel SortLabel="@nameof(OperationGrpcModel.UserId)" T="UserTokenAccountDataOperationViewModel">User</MudTableSortLabel>
@@ -105,9 +90,6 @@
                     <MudTh >Info</MudTh>
                 </MudTh>
             </HeaderContent>
-            <GroupHeaderTemplate>
-                <MudTh Class="mud-table-cell-custom-group value-column2" colspan="7">@($"{context.GroupName}: {context.Key}")</MudTh>
-            </GroupHeaderTemplate>
             <RowTemplate>
                 <MudTd DataLabel="User">@context.UserName</MudTd>
                 <MudTd DataLabel="Date">@context.Date</MudTd>
@@ -132,11 +114,6 @@
                     </MudTr>
                 }
             </ChildRowContent>
-            <GroupFooterTemplate>
-                <MudTh colspan="5"></MudTh>
-                <MudTh Class="mud-table-cell-custom-group mud-table-cell-custom-group-footer">Total: @context.Items.FirstOrDefault()?.Total.GetValueOrDefault()</MudTh>
-                <MudTh></MudTh>
-            </GroupFooterTemplate>
             <NoRecordsContent>
                 <MudText>No matching records found</MudText>
             </NoRecordsContent>
@@ -148,35 +125,21 @@
             </PagerContent>
         </MudTable>
     </MudItem>
-    <MudItem xs="8">
-        <MudSwitch T="bool" CheckedChanged="@(GroupingSet)" Color="Color.Primary">Grouping</MudSwitch>
-    </MudItem>
     }
 
-    <MudItem xs="4">
+    <MudItem xs="4" Class="@(UserIsSelected ? "visible" : "invisible")">
         <MudCard>
             <MudCardHeader>
                 <CardHeaderContent>
-                    <MudText Typo="Typo.h6">Add tokens for user</MudText>
+                    <MudText Typo="Typo.h6">User tokens</MudText>
+                    <MudText Typo="Typo.subtitle1" Color="Color.Primary">@(_data.UserName) has @(_data.UserTotal) tokens</MudText>
                 </CardHeaderContent>
             </MudCardHeader>
             <MudCardContent>
-                <MudGrid Justify="Justify.FlexStart">
-                    <MudItem xs="8">
-                        <MudAutocomplete Dense="true" Label="User" Immediate="false" Clearable="true" MinCharacters="3" Variant="Variant.Outlined" ResetValueOnEmptyText="true" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Primary"
-                                         @ref="_userList"
-                                         @bind-Value="AddAmountUser"
-                                         T="ParamValue"
-                                         SearchFunc="@(GetUsers)"
-                                         ToStringFunc="@(pv => pv?.Value)"/>
-                    </MudItem>
-                    <MudItem xs="4">
-                        <MudTextField @bind-Value="AddAmountValue" Label="Amount" Format="F1"/>
-                    </MudItem>
-                </MudGrid>
+                <MudTextField @bind-Value="AddAmountValue" Label="Add tokens" Format="F1"/>
             </MudCardContent>
             <MudCardActions>
-                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@AddAmount">Sumbit</MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="@AddAmount">Submit</MudButton>
             </MudCardActions>
         </MudCard>
     </MudItem>
@@ -188,40 +151,49 @@
     private int _totalItems;
     private bool IsRefreshing { get; set; } = false;
 
-    private ParamValue UserFilter { get; set; }
     private DateTime? DateFromFilter { get; set; }
     private DateTime? DateToFilter { get; set; }
     private int? MovementFilter { get; set; }
     private int? SourceFilter { get; set; }
     private int? ProductTypeFilter { get; set; }
 
+    private ParamValue FilterUser { get; set; }
+    private MudAutocomplete<ParamValue> _filterUserList;
+    private bool UserIsSelected { get; set; }
+
     private double AddAmountValue { get; set; }
-    private MudAutocomplete<ParamValue> _userList;
+    private MudAutocomplete<ParamValue> _addAmountUserList;
     private ParamValue AddAmountUser { get; set; }
 
     private TableGroupDefinition<UserTokenAccountDataOperationViewModel> _groupDefinition = null;
 
     private async Task Filter()
     {
+        _table.CurrentPage = 0;
         await FetchData();
         await _table.ReloadServerData();
     }
 
     private async Task FetchData(TableState state = null)
     {
+        UserIsSelected = false;
+
         IsRefreshing = true;
         StateHasChanged();
 
-        _data = await _userTokenAccountDataService.GetOperations(UserFilter?.Param, DateFromFilter, DateToFilter, MovementFilter, SourceFilter, ProductTypeFilter, state ?? new TableState());
+        string userId = FilterUser?.Param;
+        _data = await _userTokenAccountDataService.GetOperations(userId, DateFromFilter, DateToFilter, MovementFilter, SourceFilter, ProductTypeFilter, state ?? new TableState());
         _totalItems = _data.TotalItems;
 
         IsRefreshing = false;
         StateHasChanged();
+
+        UserIsSelected = _data.UserId != null;
     }
 
     private async Task ClearFilters()
     {
-        UserFilter = null;
+        FilterUser = null;
         DateFromFilter = null;
         DateToFilter = null;
         MovementFilter = null;
@@ -246,21 +218,6 @@
         await _table.ReloadServerData();
     }
 
-    private void GroupingSet(bool value)
-    {
-        if (value)
-            _groupDefinition = new TableGroupDefinition<UserTokenAccountDataOperationViewModel>
-            {
-                GroupName = "User",
-                Indentation = false,
-                Expandable = true,
-                IsInitiallyExpanded = false,
-                Selector = e => e.UserName
-            };
-        else
-            _groupDefinition = null;
-    }
-
     private void ShowJson(UserTokenAccountDataOperationViewModel item) => item.ShowJson = !item.ShowJson;
 
     private async Task<IEnumerable<ParamValue>> GetUsers(string text) => text.IsNullOrWhiteSpace()
@@ -275,21 +232,22 @@
             return;
         }
 
-        if (AddAmountUser == null)
+        if (!UserIsSelected)
         {
             _snackbar.Add("Error! Please select user.", Severity.Error);
             return;
         }
 
-        (bool added, decimal resultAmount) response = await _userTokenAccountDataService.AddAmount(AddAmountUser.Param, AddAmountValue);
+        (bool added, decimal resultAmount) response = await _userTokenAccountDataService.AddAmount(_data.UserId, AddAmountValue);
         if (response.added)
         {
             AddAmountValue = 0;
-            _snackbar.Add($"Successful! Current user {AddAmountUser.Value} token amount: {response.resultAmount}", Severity.Success);
+            _snackbar.Add($"Successful! Current user {_data.UserName} token amount: {response.resultAmount}", Severity.Success);
             await Filter();
-        }
+            StateHasChanged();
+       }
         else
-            _snackbar.Add($"Error! Can't add amount {AddAmountUser} for user {AddAmountUser.Value}.", Severity.Error);
+            _snackbar.Add($"Error! Can't add amount {AddAmountUser} for user {_data.UserName}.", Severity.Error);
     }
 
 }
