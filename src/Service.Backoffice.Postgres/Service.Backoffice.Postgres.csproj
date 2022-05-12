@@ -15,7 +15,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
     <PackageReference Include="MyJetEducation.Service.EmailSender.Client" Version="1.0.8" />
     <PackageReference Include="MyJetWallet.Sdk.Postgres" Version="2.2.0" />
-    <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.2.2" />
+    <PackageReference Include="MyJetWallet.Sdk.Service" Version="2.2.3" />
   </ItemGroup>
 
   <ItemGroup>
